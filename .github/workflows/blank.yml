@@ -22,9 +22,8 @@ jobs:
           git checkout main
           git pull
           cd ..
-          git checkout main
           git config --global user.email "1023797278@qq.com"
           git config --global user.name "Guchen"
           git add .
-          git commit "Update Backend"
+          git commit -m "Update Backend"
           git push

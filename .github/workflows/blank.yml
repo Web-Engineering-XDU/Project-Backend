@@ -19,7 +19,7 @@ jobs:
       - name: Update submodule
         run: |
           cd backend
-          git pull origin main
+          git pull
           cd ..
 
       - name: Commit and push changes

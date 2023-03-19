@@ -25,4 +25,4 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git push https://guchen1:${{secrets.TOKEN}}@github.com/Web-Engineering-XDU/Web-Engineering-Project.git
+          git push https://guchen1: ${{secrets.TOKEN}}@github.com/Web-Engineering-XDU/Web-Engineering-Project.git

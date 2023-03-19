@@ -19,7 +19,7 @@ jobs:
       - name: Update submodule
         run: |
           cd backend
-          git config pull.ff only
+          git check out main
           git pull
           cd ..
 

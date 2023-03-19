@@ -24,6 +24,8 @@ jobs:
           cd ..
 
       - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: |
           git remote set-url origin https://guchen1:${{secrets.TOKEN}}@github.com/Web-Engineering-XDU/Web-Engineering-Project.git
           git push

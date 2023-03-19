@@ -31,3 +31,4 @@ jobs:
           commit_user_email: '1023797278@qq.com'
           branch: 'main'
           push: 'true'
+          token: ${{secrets.TOKEN}}

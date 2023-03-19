@@ -19,6 +19,7 @@ jobs:
       - name: Update submodule
         run: |
           cd backend
+          git config pull.rebase false
           git pull
           cd ..
 

@@ -1,0 +1,32 @@
+name: Update parent repository
+
+on:
+  push:
+    branches:
+      - main # 监听子仓库 main 分支的推送事件
+
+jobs:
+  update-parent-repository:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout parent repository
+        uses: actions/checkout@v2 # 检出父仓库代码
+        with:
+          ref: 'main' # 检出父仓库 main 分支的代码
+          submodules: 'recursive'
+          repository: 'https://github.com/Web-Engineering-XDU/Web-Engineering-Project'
+
+      - name: Update submodule
+        run: |
+          cd <path-to-submodule>
+          git pull origin main
+          cd ..
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4 # 提交更改到父仓库
+        with:
+          commit_message: 'Update submodule'
+          commit_user_name: 'GitHub Actions'
+          commit_user_email: 'actions@github.com'
+          branch: 'main'
+          push: 'true'

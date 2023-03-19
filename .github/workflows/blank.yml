@@ -14,7 +14,7 @@ jobs:
         with:
           ref: 'main' # 检出父仓库 main 分支的代码
           submodules: 'recursive'
-          repository: 'https://github.com/Web-Engineering-XDU/Web-Engineering-Project'
+          repository: 'Web-Engineering-XDU/Web-Engineering-Project'
 
       - name: Update submodule
         run: |

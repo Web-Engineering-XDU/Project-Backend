@@ -18,7 +18,7 @@ jobs:
 
       - name: Update submodule
         run: |
-          cd <path-to-submodule>
+          cd backend
           git pull origin main
           cd ..
 

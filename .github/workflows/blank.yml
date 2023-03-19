@@ -24,11 +24,5 @@ jobs:
           cd ..
 
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v4 # 提交更改到父仓库
-        with:
-          commit_message: 'Update submodule'
-          commit_user_name: 'Guchen1'
-          commit_user_email: '1023797278@qq.com'
-          branch: 'main'
-          push: 'true'
-          token: ${{secrets.TOKEN}}
+        run: |
+          git push https://${{secrets.TOKEN}}@github.com/Web-Engineering-XDU/Web-Engineering-Project

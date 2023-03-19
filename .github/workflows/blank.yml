@@ -24,9 +24,9 @@ jobs:
           cd ..
 
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v4 # 提交更改到父仓库
-        with:
-          commit_message: 'Update submodule'
-          commit_user_name: 'GitHub Actions'
-          commit_user_email: 'actions@github.com'
-          push: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          git add .
+          git commit -m "Automated commit"
+          git push https://${GITHUB_TOKEN}@github.com/Web-Engineering-XDU/Web-Engineering-Project.git

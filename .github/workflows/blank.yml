@@ -1,0 +1,30 @@
+name: Update parent repository
+
+on:
+    branches:
+      - main # 监听子仓库 main 分支的推送事件
+
+jobs:
+  update-parent-repository:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout parent repository
+        uses: actions/checkout@v2 # 检出父仓库代码
+        with:
+          ref: 'main' # 检出父仓库 main 分支的代码
+          submodules: 'recursive'
+          repository: 'Web-Engineering-XDU/Web-Engineering-Project'
+      - name: Update submodule
+        run: |
+          cd backend
+          git checkout main
+          git pull
+          cd ..
+      - name: Import private key
+        run: |
+          cat ${{secrets.SECRET_KEY}} >> ~/.ssh/id_rsa
+          cat ${{secrets.PUBLIC_KEY}} >> ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+      - name: Commit and push changes
+        run: |
+          git push https://github.com/Web-Engineering-XDU/Web-Engineering-Project

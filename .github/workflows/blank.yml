@@ -1,6 +1,7 @@
 name: Update parent repository
 
 on:
+  push:
     branches:
       - main # 监听子仓库 main 分支的推送事件
 

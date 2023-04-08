@@ -10,22 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout parent repository
-        uses: actions/checkout@v2 # 检出父仓库代码
+        uses: actions/checkout@v3 # 检出父仓库代码
         with:
           ref: 'main' # 检出父仓库 main 分支的代码
           submodules: 'recursive'
           repository: 'Web-Engineering-XDU/Web-Engineering-Project'
-      - name: Update submodule
+          token: ${{secrets.TOKEN}}
+      - name: Update submodule and commit
         run: |
           cd backend
           git checkout main
           git pull
           cd ..
-      - name: Import private key
-        run: |
-          cat ${{secrets.SECRET_KEY}} >> ~/.ssh/id_rsa
-          cat ${{secrets.PUBLIC_KEY}} >> ~/.ssh/id_rsa.pub
-          chmod 600 ~/.ssh/id_rsa
-      - name: Commit and push changes
-        run: |
-          git push https://github.com/Web-Engineering-XDU/Web-Engineering-Project
+          git config --global user.email "1023797278@qq.com"
+          git config --global user.name "Guchen"
+          git add .
+          git commit -m "Update Backend"
+          git push

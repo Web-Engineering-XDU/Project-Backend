@@ -2,32 +2,31 @@ package service
 
 type eventHandler struct {
 	eventChan chan *Event
+	agents    *agentCollection
 }
 
-var eh = eventHandler{
-	eventChan: make(chan *Event, 100),
+func newEventHandler() eventHandler {
+	return eventHandler{
+		eventChan: make(chan *Event, 100),
+	}
 }
 
-func GetEventHandler() eventHandler {
-	return eh
-}
-
-func StartEventHandler() {
+func (eventHdl *eventHandler) startEventHandler() {
 	for i := 0; i < 10; i++ {
 		go func() {
 			var event *Event
 			for {
-				event = <-eh.eventChan
-				event.SrcAgent.mutex.RLock()
-				for _, v := range event.SrcAgent.dstAgentId {
-					go NextAgentDo(v, event)
+				event = <-eventHdl.eventChan
+				event.SrcAgent.Mutex.RLock()
+				for _, v := range event.SrcAgent.DstAgentId {
+					go eventHdl.agents.NextAgentDo(v, event)
 				}
-				event.SrcAgent.mutex.Unlock()
+				event.SrcAgent.Mutex.Unlock()
 			}
 		}()
 	}
 }
 
-func PushEvent(e *Event) {
-	eh.eventChan <- e
+func (eventHdl *eventHandler) PushEvent(e *Event) {
+	eventHdl.eventChan <- e
 }

@@ -14,31 +14,26 @@ type Event struct {
 }
 
 type AgentInfo struct {
-	id                      int
-	name                    string
-	agentType               string
-	enable                  bool
-	
-	allowInput, allowOutput bool
-	srcAgentId, dstAgentId  []int
+	Id        int
+	Name      string
+	AgentType string
+	Enable    bool
 
-	tempEvent				bool
-	eventMaxAge				time.Duration
-}
+	AllowInput, AllowOutput bool
+	SrcAgentId, DstAgentId  []int
 
-type AgentCore interface {
-	Run(ctx context.Context, agent *Agent, event *Event)
-	Stop()
+	TempEvent   bool
+	EventMaxAge time.Duration
 }
 
 type Agent struct {
 	AgentInfo
 
-	ctx    context.Context
-	cancle context.CancelFunc
-	mutex  sync.RWMutex
+	EventHdl *eventHandler
 
-	agentCore *AgentCore
+	Ctx   context.Context
+	Mutex sync.RWMutex
+
+	Run  func(context.Context, *Event)
+	Stop func()
 }
-
-

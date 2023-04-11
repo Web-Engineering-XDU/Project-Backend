@@ -1,0 +1,7 @@
+version: 1
+packages:
+  - path: "app/models"
+    name: "models"
+    engine: "mysql"
+    schema: "app/models/db/schema.sql"
+    queries: "app/models/db/query.sql"

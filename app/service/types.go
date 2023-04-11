@@ -9,31 +9,38 @@ import (
 type Message map[string]string
 
 type Event struct {
-	SrcAgent *Agent
-	Msg      Message
+	SrcAgent   *Agent
+	CreateTime time.Time
+	DeleteTime time.Time
+	Msg        Message
 }
 
 type AgentInfo struct {
-	Id        int
-	Name      string
-	AgentType string
-	Enable    bool
+	Id     int
+	Name   string
+	Enable bool
+
+	AgentId          int
+	AgentType        string
+	AgentCoreJsonStr string
 
 	AllowInput, AllowOutput bool
 	SrcAgentId, DstAgentId  []int
 
-	TempEvent   bool
 	EventMaxAge time.Duration
 }
 
 type Agent struct {
 	AgentInfo
+	AgentCore
 
 	EventHdl *eventHandler
 
 	Ctx   context.Context
 	Mutex sync.RWMutex
+}
 
-	Run  func(context.Context, *Event)
-	Stop func()
+type AgentCore interface {
+	Run(context.Context, *Agent, *Event)
+	Stop()
 }

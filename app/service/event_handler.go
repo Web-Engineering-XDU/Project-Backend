@@ -17,11 +17,9 @@ func (eventHdl *eventHandler) startEventHandler() {
 			var event *Event
 			for {
 				event = <-eventHdl.eventChan
-				event.SrcAgent.Mutex.RLock()
 				for _, v := range event.SrcAgent.DstAgentId {
 					go eventHdl.agents.NextAgentDo(v, event)
 				}
-				event.SrcAgent.Mutex.Unlock()
 			}
 		}()
 	}

@@ -15,15 +15,15 @@ type Agent struct {
 	TypeID      int32
 	EventMaxAge int64
 	PropJsonStr string
-	CreateTime  time.Time
+	CreateAt    time.Time
 	Deleted     int32
+	Description string
 }
 
 type AgentRelation struct {
 	ID         int32
 	SrcAgentID int32
 	DstAgentID int32
-	Deleted    int32
 }
 
 type AgentType struct {
@@ -35,9 +35,12 @@ type AgentType struct {
 }
 
 type Event struct {
-	ID          int32
-	JsonStr     string
-	SrcAgentID  int32
-	CreatedTime time.Time
-	Deleted     int32
+	ID         int32
+	SrcAgentID int32
+	JsonStr    string
+	Error      int32
+	Log        string
+	CreateAt   time.Time
+	DeleteAt   time.Time
+	Deleted    int32
 }

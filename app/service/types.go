@@ -14,14 +14,11 @@ type Event struct {
 	DeleteTime time.Time
 	Msg        Message
 }
-
 type AgentInfo struct {
 	Id     int
-	Name   string
 	Enable bool
 
-	AgentId          int
-	AgentType        string
+	AgentTypeId          int
 	AgentCoreJsonStr string
 
 	AllowInput, AllowOutput bool

@@ -10,53 +10,128 @@ import (
 	"time"
 )
 
-const getAgentList = `-- name: GetAgentList :many
+const addAgent = `-- name: AddAgent :exec
+INSERT INTO
+	agent(
+		name,
+		enable,
+		type_id,
+		event_max_age,
+		prop_json_str,
+		create_at,
+		description
+	)
+VALUES($1, $2, $3, $4, $5, $6, $7)
+`
+
+func (q *Queries) AddAgent(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, addAgent)
+	return err
+}
+
+const addAgentRelation = `-- name: AddAgentRelation :exec
+INSERT INTO
+	agent_relation (
+		src_agent_id,
+		dst_agent_id
+	)
+VALUES ($1, $2)
+`
+
+func (q *Queries) AddAgentRelation(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, addAgentRelation)
+	return err
+}
+
+const addEvent = `-- name: AddEvent :exec
+INSERT INTO
+	event (
+		src_agent_id,
+		json_str,
+		error,
+		log,
+		create_at,
+		delete_at
+	)
+VALUES ($1, $2, $3, $4, $5, $6)
+`
+
+func (q *Queries) AddEvent(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, addEvent)
+	return err
+}
+
+const deleteAgentRelation = `-- name: DeleteAgentRelation :exec
+DELETE FROM
+	agent_relation
+WHERE
+	src_agent_id = $1 AND
+	dst_agent_id = $2
+`
+
+func (q *Queries) DeleteAgentRelation(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAgentRelation)
+	return err
+}
+
+const deleteAllAgentRelationAbout = `-- name: DeleteAllAgentRelationAbout :exec
+DELETE FROM
+	agent_relation
+WHERE
+	src_agent_id = $1 OR
+	dst_agent_id = $1
+`
+
+func (q *Queries) DeleteAllAgentRelationAbout(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllAgentRelationAbout)
+	return err
+}
+
+const getAgentBasicInfoList = `-- name: GetAgentBasicInfoList :many
 SELECT 
 	agent.id id,
 	agent.name name,
 	agent.enable enable,
 	agent.type_id type_id,
-	agent_type.name type_name,
-	agent.event_max_age event_max_age,
-	agent.prop_json_str prop_json_str,
-	agent.create_time create_time
+	agent_type.name type_name
 FROM (
 	agent INNER JOIN agent_type
 	ON agent.type_id = agent_type.id
 )
 WHERE agent.deleted = 0 AND
 	agent_type.deleted = 0
+ORDER BY agent.create_at DESC
+LIMIT ?, ?
 `
 
-type GetAgentListRow struct {
-	ID          int32
-	Name        string
-	Enable      int32
-	TypeID      int32
-	TypeName    string
-	EventMaxAge int64
-	PropJsonStr string
-	CreateTime  time.Time
+type GetAgentBasicInfoListParams struct {
+	Offset int32
+	Limit  int32
 }
 
-func (q *Queries) GetAgentList(ctx context.Context) ([]GetAgentListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getAgentList)
+type GetAgentBasicInfoListRow struct {
+	ID       int32
+	Name     string
+	Enable   int32
+	TypeID   int32
+	TypeName string
+}
+
+func (q *Queries) GetAgentBasicInfoList(ctx context.Context, arg GetAgentBasicInfoListParams) ([]GetAgentBasicInfoListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAgentBasicInfoList, arg.Offset, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetAgentListRow
+	var items []GetAgentBasicInfoListRow
 	for rows.Next() {
-		var i GetAgentListRow
+		var i GetAgentBasicInfoListRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.Enable,
 			&i.TypeID,
 			&i.TypeName,
-			&i.EventMaxAge,
-			&i.PropJsonStr,
-			&i.CreateTime,
 		); err != nil {
 			return nil, err
 		}
@@ -69,4 +144,293 @@ func (q *Queries) GetAgentList(ctx context.Context) ([]GetAgentListRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getAgentDetail = `-- name: GetAgentDetail :one
+SELECT 
+	agent.id id,
+	agent.name name,
+	agent.enable enable,
+	agent.type_id type_id,
+	agent_type.name type_name,
+	agent.event_max_age event_max_age,
+	agent.prop_json_str prop_json_str,
+	agent.create_at create_at,
+	agent.description description
+FROM (
+	agent INNER JOIN agent_type
+	ON agent.type_id = agent_type.id
+)
+WHERE
+	agent.deleted = 0 AND
+	agent_type.deleted = 0 AND
+	agent.id = $1
+LIMIT 1
+`
+
+type GetAgentDetailRow struct {
+	ID          int32
+	Name        string
+	Enable      int32
+	TypeID      int32
+	TypeName    string
+	EventMaxAge int64
+	PropJsonStr string
+	CreateAt    time.Time
+	Description string
+}
+
+func (q *Queries) GetAgentDetail(ctx context.Context) (GetAgentDetailRow, error) {
+	row := q.db.QueryRowContext(ctx, getAgentDetail)
+	var i GetAgentDetailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Enable,
+		&i.TypeID,
+		&i.TypeName,
+		&i.EventMaxAge,
+		&i.PropJsonStr,
+		&i.CreateAt,
+		&i.Description,
+	)
+	return i, err
+}
+
+const getAgentRelationList = `-- name: GetAgentRelationList :many
+SELECT
+	src_agent_id,
+	dst_agent_id
+FROM agent_relation
+`
+
+type GetAgentRelationListRow struct {
+	SrcAgentID int32
+	DstAgentID int32
+}
+
+func (q *Queries) GetAgentRelationList(ctx context.Context) ([]GetAgentRelationListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAgentRelationList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAgentRelationListRow
+	for rows.Next() {
+		var i GetAgentRelationListRow
+		if err := rows.Scan(&i.SrcAgentID, &i.DstAgentID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAgentRuntimeInfoList = `-- name: GetAgentRuntimeInfoList :many
+SELECT 
+	agent.id id,
+	agent.enable enable,
+	agent.event_max_age event_max_age,
+	agent.prop_json_str prop_json_str,
+	agent.type_id type_id,
+	agent_type.allow_input allow_input,
+	agent_type.allow_output allow_output
+FROM (
+	agent INNER JOIN agent_type
+	ON agent.type_id = agent_type.id
+)
+WHERE
+	agent.deleted = 0 AND
+	agent_type.deleted = 0
+`
+
+type GetAgentRuntimeInfoListRow struct {
+	ID          int32
+	Enable      int32
+	EventMaxAge int64
+	PropJsonStr string
+	TypeID      int32
+	AllowInput  int32
+	AllowOutput int32
+}
+
+func (q *Queries) GetAgentRuntimeInfoList(ctx context.Context) ([]GetAgentRuntimeInfoListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAgentRuntimeInfoList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAgentRuntimeInfoListRow
+	for rows.Next() {
+		var i GetAgentRuntimeInfoListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Enable,
+			&i.EventMaxAge,
+			&i.PropJsonStr,
+			&i.TypeID,
+			&i.AllowInput,
+			&i.AllowOutput,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getEventDetail = `-- name: GetEventDetail :one
+SELECT
+	event.id id,
+	event.src_agent_id src_agent_id,
+	agent_type.name src_agent_name,
+	event.json_str json_str,
+	event.error error,
+	event.log log,
+	event.create_at create_at
+FROM(
+	event INNER JOIN agent_type
+	ON event.src_agent_id = agent_type.id
+)
+WHERE
+	event.id = $1 AND
+	event.deleted = 0
+LIMIT 1
+`
+
+type GetEventDetailRow struct {
+	ID           int32
+	SrcAgentID   int32
+	SrcAgentName string
+	JsonStr      string
+	Error        int32
+	Log          string
+	CreateAt     time.Time
+}
+
+func (q *Queries) GetEventDetail(ctx context.Context) (GetEventDetailRow, error) {
+	row := q.db.QueryRowContext(ctx, getEventDetail)
+	var i GetEventDetailRow
+	err := row.Scan(
+		&i.ID,
+		&i.SrcAgentID,
+		&i.SrcAgentName,
+		&i.JsonStr,
+		&i.Error,
+		&i.Log,
+		&i.CreateAt,
+	)
+	return i, err
+}
+
+const getEventList = `-- name: GetEventList :many
+SELECT
+	event.id id,
+	event.src_agent_id src_agent_id,
+	agent_type.name src_agent_name,
+	event.json_str json_str,
+	event.error error,
+	event.create_at create_at
+FROM(
+	event INNER JOIN agent_type
+	ON event.src_agent_id = agent_type.id
+)
+WHERE event.deleted = 0
+ORDER BY event.create_at DESC
+LIMIT ? OFFSET ?
+`
+
+type GetEventListParams struct {
+	Limit  int32
+	Offset int32
+}
+
+type GetEventListRow struct {
+	ID           int32
+	SrcAgentID   int32
+	SrcAgentName string
+	JsonStr      string
+	Error        int32
+	CreateAt     time.Time
+}
+
+func (q *Queries) GetEventList(ctx context.Context, arg GetEventListParams) ([]GetEventListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEventList, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEventListRow
+	for rows.Next() {
+		var i GetEventListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SrcAgentID,
+			&i.SrcAgentName,
+			&i.JsonStr,
+			&i.Error,
+			&i.CreateAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const softDeleteAgent = `-- name: SoftDeleteAgent :exec
+UPDATE agent
+SET deleted = 1
+WHERE
+	id = $1 AND
+	deleted = 0
+`
+
+func (q *Queries) SoftDeleteAgent(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, softDeleteAgent)
+	return err
+}
+
+const softDeleteAllEventAbout = `-- name: SoftDeleteAllEventAbout :exec
+UPDATE event
+SET deleted = 1
+WHERE
+	src_agent_id = $1 AND
+	deleted = 0
+`
+
+func (q *Queries) SoftDeleteAllEventAbout(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, softDeleteAllEventAbout)
+	return err
+}
+
+const softDeleteEventById = `-- name: SoftDeleteEventById :exec
+UPDATE event
+SET deleted = 1
+WHERE 
+	id = $1 AND
+	deleted = 0
+`
+
+func (q *Queries) SoftDeleteEventById(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, softDeleteEventById)
+	return err
 }

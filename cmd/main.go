@@ -1,8 +1,18 @@
 package main
 
-import "github.com/Web-Engineering-XDU/Project-Backend/app/service"
+import (
+	"github.com/Web-Engineering-XDU/Project-Backend/app/service"
+	"github.com/Web-Engineering-XDU/Project-Backend/config"
+	"github.com/ilyakaznacheev/cleanenv"
+)
 
 func main() {
-	huggo := service.New()
+	var config config.Config
+	err:= cleanenv.ReadConfig("../config/config.yml", &config)
+	if err != nil {
+		panic(err)
+	}
+	
+	huggo := service.New(config)
 	huggo.Run()
 }

@@ -13,5 +13,8 @@ func newAgentSystem(agents *agentCollection, eventHdl *eventHandler) *AgentSyste
 
 func (as *AgentSystem) run() {
 	as.eventHdl.run()
-	as.agents.init()
+	err := as.agents.init()
+	if err != nil {
+		panic(err)
+	}
 }

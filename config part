@@ -1,0 +1,18 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch dev
+# Changes to be committed:
+#	modified:   .gitignore
+#	new file:   app/models/mysql.go
+#	modified:   app/service/agent_collection.go
+#	modified:   app/service/agent_system.go
+#	modified:   app/service/event_handler.go
+#	modified:   app/service/huggo.go
+#	new file:   config/config.example.yml
+#	modified:   config/config.go
+#	deleted:    config/config.yml
+#	modified:   go.mod
+#	modified:   go.sum
+#

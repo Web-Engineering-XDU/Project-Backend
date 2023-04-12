@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 )
@@ -27,6 +28,11 @@ type AgentInfo struct {
 	EventMaxAge time.Duration
 }
 
+type AgentCore interface {
+	Run(context.Context, *Agent, *Event)
+	Stop()
+}
+
 type Agent struct {
 	AgentInfo
 	AgentCore
@@ -37,7 +43,19 @@ type Agent struct {
 	Mutex sync.RWMutex
 }
 
-type AgentCore interface {
-	Run(context.Context, *Agent, *Event)
-	Stop()
+func (a *Agent) loadCore() error {
+	switch a.AgentInfo.AgentTypeId {
+	case 1:
+		return a.loadSchduleAgentCore()
+	default:
+		return errors.New("Unkonw agent core")
+	}
+	
 }
+
+func (a *Agent) loadSchduleAgentCore() error {
+	//TODO
+	return nil
+}
+
+

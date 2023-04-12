@@ -112,7 +112,7 @@ type GetAgentBasicInfoListParams struct {
 type GetAgentBasicInfoListRow struct {
 	ID       int32
 	Name     string
-	Enable   int32
+	Enable   bool
 	TypeID   int32
 	TypeName string
 }
@@ -171,7 +171,7 @@ LIMIT 1
 type GetAgentDetailRow struct {
 	ID          int32
 	Name        string
-	Enable      int32
+	Enable      bool
 	TypeID      int32
 	TypeName    string
 	EventMaxAge int64
@@ -252,12 +252,12 @@ WHERE
 
 type GetAgentRuntimeInfoListRow struct {
 	ID          int32
-	Enable      int32
+	Enable      bool
 	EventMaxAge int64
 	PropJsonStr string
 	TypeID      int32
-	AllowInput  int32
-	AllowOutput int32
+	AllowInput  bool
+	AllowOutput bool
 }
 
 func (q *Queries) GetAgentRuntimeInfoList(ctx context.Context) ([]GetAgentRuntimeInfoListRow, error) {
@@ -315,7 +315,7 @@ type GetEventDetailRow struct {
 	SrcAgentID   int32
 	SrcAgentName string
 	JsonStr      string
-	Error        int32
+	Error        bool
 	Log          string
 	CreateAt     time.Time
 }
@@ -362,7 +362,7 @@ type GetEventListRow struct {
 	SrcAgentID   int32
 	SrcAgentName string
 	JsonStr      string
-	Error        int32
+	Error        bool
 	CreateAt     time.Time
 }
 

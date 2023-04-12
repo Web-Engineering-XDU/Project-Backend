@@ -3,15 +3,17 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
+	"github.com/Web-Engineering-XDU/Project-Backend/config"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var quries *Queries
 
-func InitDB(dataSourceName string) (*Queries, error) {
+func InitDB(config config.MySQL) (*Queries, error) {
 	if quries == nil {
-		db, err := sql.Open("mysql", "root:z0013@/huggo?parseTime=true")
+		db, err := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/huggo?parseTime=true", config.User, config.Password, config.Host, config.Port))
 		if err != nil {
 			return nil, err
 		}
@@ -24,5 +26,3 @@ func InitDB(dataSourceName string) (*Queries, error) {
 func DB() *Queries {
 	return quries
 }
-
-

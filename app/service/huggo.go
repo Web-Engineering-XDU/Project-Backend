@@ -5,6 +5,7 @@ import (
 )
 
 type HuggoConfig struct {
+	dataSourceName string
 }
 
 type Huggo struct {
@@ -13,7 +14,7 @@ type Huggo struct {
 	agentSys  *AgentSystem
 }
 
-func New() *Huggo {
+func New(HuggoConfig HuggoConfig) *Huggo {
 	agents := newAgentCollection()
 	eventHdl := newEventHandler()
 	return &Huggo{
@@ -23,6 +24,7 @@ func New() *Huggo {
 	}
 }
 
-func (*Huggo) Run() {
-
+func (huggo *Huggo) Run() {
+	// models.InitDB()
+	huggo.agentSys.run()
 }

@@ -1,0 +1,5 @@
+mysql:
+  user: huggo
+  password: 114514
+  # host: localhost
+  # port: 3306

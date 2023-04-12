@@ -11,6 +11,7 @@ func newAgentSystem(agents *agentCollection, eventHdl *eventHandler) *AgentSyste
 	return &AgentSystem{agents, eventHdl}
 }
 
-// func StartService() {
-// 	startAgentManager()
-// }
+func (as *AgentSystem) run() {
+	as.eventHdl.run()
+	as.agents.init()
+}

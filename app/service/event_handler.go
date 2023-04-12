@@ -11,7 +11,7 @@ func newEventHandler() eventHandler {
 	}
 }
 
-func (eventHdl *eventHandler) startEventHandler() {
+func (eventHdl *eventHandler) run() {
 	for i := 0; i < 10; i++ {
 		go func() {
 			var event *Event

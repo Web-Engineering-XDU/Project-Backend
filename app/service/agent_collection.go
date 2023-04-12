@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"sync"
 	"time"
 )
 
@@ -18,10 +17,8 @@ func newAgentCollection() agentCollection {
 }
 
 func (am agentCollection) init() {
-	//TODO
+	// models.
 }
-
-var once sync.Once
 
 func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
 	agent, ok := agents.agentMap[agentId]

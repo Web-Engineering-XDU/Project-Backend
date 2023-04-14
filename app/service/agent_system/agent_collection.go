@@ -1,4 +1,4 @@
-package service
+package agentsystem
 
 import (
 	"context"
@@ -11,25 +11,27 @@ import (
 type agentCollection struct {
 	agentMap map[int]*Agent
 	eventHdl *eventHandler
-	ctx context.Context
+	ctx      context.Context
 }
 
-func newAgentCollection() agentCollection {
+func NewAgentCollection() agentCollection {
 	return agentCollection{
 		agentMap: make(map[int]*Agent),
-		ctx: context.Background(),
+		ctx:      context.Background(),
 	}
 }
 
 func (ac *agentCollection) init() error {
 	agents, err := models.DB().GetAgentRuntimeInfoList(ac.ctx)
+	if err != nil {
+		return err
+	}
 	relations, err := models.DB().GetAgentRelationList(ac.ctx)
-
 	if err != nil {
 		return err
 	}
 
-	schedule_agents := make([]int, 0, 10);
+	schedule_agents := make([]int, 0, 10)
 
 	for _, v := range agents {
 		ac.agentMap[int(v.ID)] = &Agent{
@@ -44,20 +46,22 @@ func (ac *agentCollection) init() error {
 				DstAgentId:       make([]int, 0, 2),
 				EventMaxAge:      time.Duration(v.EventMaxAge),
 			},
+			ac:    ac,
 			Ctx:   ac.ctx,
 			Mutex: sync.RWMutex{},
 		}
 		err = ac.agentMap[int(v.ID)].loadCore()
 		if err != nil {
+			//TODO
 			panic(err)
 		}
-		if v.TypeID == 1 {
+		if v.TypeID == 1 && v.Enable {
 			schedule_agents = append(schedule_agents, int(v.ID))
 		}
 	}
 
 	for _, v := range relations {
-		ac.agentMap[int(v.SrcAgentID)].DstAgentId = append(ac.agentMap[int(v.SrcAgentID)].DstAgentId, int(v.DstAgentID))	
+		ac.agentMap[int(v.SrcAgentID)].DstAgentId = append(ac.agentMap[int(v.SrcAgentID)].DstAgentId, int(v.DstAgentID))
 		ac.agentMap[int(v.DstAgentID)].SrcAgentId = append(ac.agentMap[int(v.DstAgentID)].SrcAgentId, int(v.SrcAgentID))
 	}
 
@@ -74,12 +78,13 @@ func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
 		//TODO no such agent
 		return
 	}
-	if !agent.AllowInput {
+	if !agent.AllowInput && agent.AgentTypeId != 1 {
 		//target do not allow input
 		return
 	}
-	//agent is not awake. Wake it up
-	ctx, cancle := context.WithTimeout(agent.Ctx, 10*time.Minute)
-	defer cancle()
-	(*agent).Run(ctx, agent, e)
+	// ctx, cancle := context.WithTimeout(agent.Ctx, 10*time.Minute)
+	// defer cancle()
+	// agent.Run(ctx, agent, e)
+
+	agent.Run(context.Background(), agent , e)
 }

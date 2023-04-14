@@ -35,12 +35,13 @@ type AgentType struct {
 }
 
 type Event struct {
-	ID         int32
-	SrcAgentID int32
-	JsonStr    string
-	Error      bool
-	Log        string
-	CreateAt   time.Time
-	DeleteAt   time.Time
-	Deleted    bool
+	ID          int32
+	SrcAgentID  int32
+	JsonStr     string
+	ContentHash string
+	Error       bool
+	Log         string
+	CreateAt    time.Time
+	DeleteAt    time.Time
+	Deleted     bool
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
+	agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
 	"github.com/Web-Engineering-XDU/Project-Backend/config"
 	"github.com/gin-gonic/gin"
 )
@@ -9,21 +10,21 @@ import (
 type Huggo struct {
 	config    config.Config
 	ginServer *gin.Engine
-	agentSys  *AgentSystem
+	agentSys  *agentsystem.AgentSystem
 }
 
 func New(huggoConfig config.Config) *Huggo {
-	agents := newAgentCollection()
-	eventHdl := newEventHandler()
+	agents := agentsystem.NewAgentCollection()
+	eventHdl := agentsystem.NewEventHandler()
 	return &Huggo{
 		config: huggoConfig,
 		//TODO
 		ginServer: gin.Default(),
-		agentSys:  newAgentSystem(&agents, &eventHdl),
+		agentSys:  agentsystem.NewAgentSystem(&agents, &eventHdl),
 	}
 }
 
 func (huggo *Huggo) Run() {
 	models.InitDB(huggo.config.MySQL)
-	huggo.agentSys.run()
+	huggo.agentSys.Run()
 }

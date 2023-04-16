@@ -17,7 +17,12 @@ func (eventHdl *eventHandler) run() {
 			var event *Event
 			for {
 				event = <-eventHdl.eventChan
-				// fmt.Println(event)
+				if event.MetError {
+					//TODO
+				}
+				if !event.ToBeDelivered {
+					return
+				}
 				for _, v := range event.SrcAgent.DstAgentId {
 					go eventHdl.agents.NextAgentDo(v, event)
 				}

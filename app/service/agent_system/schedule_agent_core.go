@@ -10,30 +10,41 @@ import (
 
 var cronTimer = cron.New(cron.WithSeconds())
 
-type ScheduleAgentCore struct {
-	CronSpec    string	`json:"cron"`
+type scheduleAgentCore struct {
+	CronSpec    string `json:"cron"`
 	cronEntryID cron.EntryID
 }
 
-func (sac *ScheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
+func (a *Agent) loadSchduleAgentCore() error {
+	core := &scheduleAgentCore{}
+	err := json.UnmarshalFromString(a.AgentCoreJsonStr, core)
+	if err != nil {
+		return err
+	}
+	a.AgentCore = core
+	return nil
+}
+
+func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 	go cronTimer.Run()
 	var err error
 	sac.cronEntryID, err = cronTimer.AddFunc(sac.CronSpec, func() {
 		agent.ac.eventHdl.PushEvent(&Event{
-			SrcAgent: agent,
+			SrcAgent:   agent,
 			CreateTime: time.Now(),
 			DeleteTime: time.Now().Add(agent.EventMaxAge),
-			Msg:      emptyMsg,
+			Msg:        emptyMsg,
 		})
 	})
 	if err != nil {
 		log.Panicln(err)
-		//TODO 
+		//TODO
 	}
 }
 
-func (sac *ScheduleAgentCore) Stop() {
-	if cronTimer != nil{
+func (sac *scheduleAgentCore) Stop() {
+	if cronTimer != nil {
 		cronTimer.Remove(sac.cronEntryID)
 	}
 }
+

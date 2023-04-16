@@ -5,10 +5,16 @@ import (
 	"fmt"
 )
 
-type PrintAgentCore struct{}
+type printAgentCore struct{}
 
-func (pac *PrintAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
-	fmt.Printf("%v Recive Event: %v from %v\n", agent.Id ,event.Msg, event.SrcAgent.Id)
+func (a *Agent) loadPrintAgentCore() error {
+	core := &printAgentCore{}
+	a.AgentCore = core
+	return nil
 }
 
-func (*PrintAgentCore) Stop() {}
+func (pac *printAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
+	fmt.Printf("%v Recive Event: %v from %v\n", agent.Id, event.Msg, event.SrcAgent.Id)
+}
+
+func (*printAgentCore) Stop() {}

@@ -9,21 +9,26 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type Message map[string]string
-var emptyMsg = map[string]string{}
+type Message map[string]interface{}
+
+var emptyMsg = map[string]interface{}{}
 
 type Event struct {
 	SrcAgent   *Agent
 	CreateTime time.Time
 	DeleteTime time.Time
 	Msg        Message
+
+	MetError      bool
+	Log           string
+	ToBeDelivered bool
 }
 
 type AgentInfo struct {
 	Id     int
 	Enable bool
 
-	AgentTypeId          int
+	AgentTypeId      int
 	AgentCoreJsonStr string
 
 	AllowInput, AllowOutput bool
@@ -58,22 +63,5 @@ func (a *Agent) loadCore() error {
 	default:
 		return errors.New("unkonw agent core")
 	}
-	
-}
 
-func (a *Agent) loadSchduleAgentCore() error {
-	core := &ScheduleAgentCore{}
-	err := json.UnmarshalFromString(a.AgentCoreJsonStr, core)
-	if err != nil {
-		return err
-	}
-	a.AgentCore = core
-	return nil
 }
-
-func (a *Agent) loadPrintAgentCore() error {
-	core := &PrintAgentCore{}
-	a.AgentCore = core
-	return nil
-}
-

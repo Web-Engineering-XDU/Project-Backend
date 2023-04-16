@@ -5,11 +5,27 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/robfig/cron/v3 v3.0.0
+	github.com/tidwall/gjson v1.14.4
+	github.com/valyala/fasthttp v1.45.0
 )
 
 require (
-	github.com/ilyakaznacheev/cleanenv v1.4.2
+	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/antchfx/jsonquery v1.3.2 // indirect
+	github.com/antchfx/xpath v1.2.3 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/klauspost/compress v1.16.3 // indirect
+	github.com/osteele/liquid v1.3.0 // indirect
+	github.com/osteele/tuesday v1.0.3 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+)
+
+require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/ilyakaznacheev/cleanenv v1.4.2
 	github.com/joho/godotenv v1.5.1 // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
 )
@@ -33,10 +49,10 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
-	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/crypto v0.7.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

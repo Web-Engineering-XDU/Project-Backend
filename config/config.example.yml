@@ -1,3 +1,4 @@
+# rename to config.yml before use
 mysql:
   user: huggo
   password: 114514

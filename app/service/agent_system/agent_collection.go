@@ -78,7 +78,7 @@ func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
 		//TODO no such agent
 		return
 	}
-	if !agent.AllowInput && agent.AgentTypeId != 1 {
+	if !agent.Enable || !agent.AllowInput && agent.AgentTypeId != 1 {
 		//target do not allow input
 		return
 	}

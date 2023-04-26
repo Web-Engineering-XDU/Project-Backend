@@ -34,6 +34,7 @@ func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Even
 			CreateTime: time.Now(),
 			DeleteTime: time.Now().Add(agent.EventMaxAge),
 			Msg:        emptyMsg,
+			ToBeDelivered: true,
 		})
 	})
 	if err != nil {

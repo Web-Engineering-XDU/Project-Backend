@@ -3,7 +3,10 @@ module github.com/Web-Engineering-XDU/Project-Backend
 go 1.20
 
 require (
+	github.com/antchfx/jsonquery v1.3.2
 	github.com/gin-gonic/gin v1.9.0
+	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
+	github.com/osteele/liquid v1.3.0
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/valyala/fasthttp v1.45.0
@@ -11,11 +14,9 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/antchfx/jsonquery v1.3.2 // indirect
 	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/klauspost/compress v1.16.3 // indirect
-	github.com/osteele/liquid v1.3.0 // indirect
 	github.com/osteele/tuesday v1.0.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

@@ -9,15 +9,15 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type Message map[string]interface{}
+type Message map[string]string
 
-var emptyMsg = map[string]interface{}{}
+var emptyMsg = map[string]string{}
 
 type Event struct {
-	SrcAgent   *Agent
-	CreateTime time.Time
-	DeleteTime time.Time
-	Msg        Message
+	SrcAgent     *Agent
+	CreateTime   time.Time
+	DeleteTime   time.Time
+	Msg          Message
 
 	MetError      bool
 	Log           string
@@ -60,6 +60,8 @@ func (a *Agent) loadCore() error {
 		return a.loadSchduleAgentCore()
 	case 2:
 		return a.loadPrintAgentCore()
+	case 3:
+		return a.loadHttpAgentCore()
 	default:
 		return errors.New("unkonw agent core")
 	}

@@ -1,9 +1,15 @@
 package agentsystem
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"reflect"
+	"time"
 
+	"github.com/antchfx/jsonquery"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/mohae/deepcopy"
 	"github.com/osteele/liquid"
 	"github.com/valyala/fasthttp"
 )
@@ -14,17 +20,74 @@ type Selector struct {
 	SelectorContent string `json:"selector_content"`
 }
 
-type httpAgentCore struct {
-	Url    []string          `json:"urls"`
+type httpRequstsTemplate struct {
+	Urls   []string          `json:"urls"`
 	Method string            `json:"method"`
 	Header map[string]string `json:"header"`
 	Body   string            `json:"body"`
+}
 
-	DocType   string            `json:"doc_type"`
-	Selectors []Selector        `json:"selectors"`
-	Template  map[string]string `json:"template"`
+func convertMap(m map[string]string) map[string]interface{} {
+	res := make(map[string]interface{}, len(m))
+	for k, v := range m {
+		res[k] = v
+	}
+	return res
+}
 
-	Mode string `json:"mode"`
+func (t *httpRequstsTemplate) render(bindings map[string]string) error {
+	out, err := engine.ParseAndRenderString(t.Method, convertMap(bindings))
+	if err != nil {
+		return err
+	}
+	t.Method = out
+
+	out, err = engine.ParseAndRenderString(t.Body, convertMap(bindings))
+	if err != nil {
+		return err
+	}
+	t.Body = out
+
+	for k, v := range t.Header {
+		out, err = engine.ParseAndRenderString(v, convertMap(bindings))
+		if err != nil {
+			return err
+		}
+		t.Header[k] = out
+	}
+
+	for i, v := range t.Urls {
+		out, err = engine.ParseAndRenderString(v, convertMap(bindings))
+		if err != nil {
+			return err
+		}
+		t.Urls[i] = out
+	}
+
+	return nil
+}
+type httpAgentCore struct {
+	Mode       string `json:"mode"`
+	MergeEvent bool   `json:"merge_event"`
+
+	httpRequstsTemplate
+	Template map[string]string `json:"template"`
+
+	DocType   string     `json:"doc_type"`
+	Selectors []Selector `json:"selectors"`
+}
+
+func renderTemplate(template, bindings map[string]string) error{
+	var out string
+	var err error
+	for k, v := range template {
+		out, err = engine.ParseAndRenderString(v, convertMap(bindings))
+		if err != nil {
+			return err
+		}
+		template[k] = out
+	}
+	return nil
 }
 
 func (a *Agent) loadHttpAgentCore() error {
@@ -40,13 +103,10 @@ func (a *Agent) loadHttpAgentCore() error {
 func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 	newEvent := &Event{}
 
-	template := make(map[string]string)
-	for k, v := range hac.Template {
-		template[k] = v
-	}
-	hac.Template = nil
+	httpReqTemp := deepcopy.Copy(hac.httpRequstsTemplate).(httpRequstsTemplate)
+	temp := deepcopy.Copy(hac.Template).(map[string]string)
 
-	err := renderAllString(hac, event.Msg)
+	err := httpReqTemp.render(event.Msg)
 	if err != nil {
 		newEvent.MetError = true
 		//TODO
@@ -55,112 +115,146 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 	//Http Request
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
-	req.Header.SetMethod(hac.Method)
-	for key, val := range hac.Header {
+	req.Header.SetMethod(httpReqTemp.Method)
+	for key, val := range httpReqTemp.Header {
 		req.Header.Set(key, val)
 	}
-	req.SetBodyString(hac.Body)
+	req.SetBodyString(httpReqTemp.Body)
 
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
-	err = fasthttp.Do(req, resp)
-	if err != nil {
-		newEvent.MetError = true
-		//TODO
-	}
+	for _, v := range httpReqTemp.Urls {
+		req.SetRequestURI(v)
+		err = fasthttp.Do(req, resp)
+		if err != nil {
+			newEvent.MetError = true
+			//TODO
+		}
 
-	//extract data from doc
-	resultMap := make(map[string]string)
-	err = nil
-	switch hac.DocType {
-	case "html":
-		err = selectHtml(resp.Body(), hac.Selectors, resultMap)
-	case "json":
-		err = selectJson(resp.Body(), hac.Selectors, resultMap)
-	case "text":
-		err = selectText(resp.Body(), hac.Selectors, resultMap)
-	default:
-		newEvent.MetError = true
-		//TODO
-	}
+		//extract data from doc
+		resultMap := make([]map[string]string, 0, 20)
+		err = nil
+		switch hac.DocType {
+		case "html":
+			err = selectHtml(resp.Body(), hac.Selectors, &resultMap)
+		case "json":
+			err = selectJson(resp.Body(), hac.Selectors, &resultMap)
+		case "text":
+			err = selectText(resp.Body(), hac.Selectors, &resultMap)
+		default:
+			newEvent.MetError = true
+			//TODO
+		}
 
-	if err != nil {
-		newEvent.MetError = true
-		//TODO
-	}
+		if err != nil {
+			newEvent.MetError = true
+			//TODO
+		}
 
+		for _, v := range resultMap {
+			bindings := deepcopy.Copy(v).(map[string]string)
+			mergeMap(bindings, event.Msg)
+			err = renderTemplate(temp, bindings)
+			if err != nil {
+				newEvent.MetError = true
+				//TODO
+			}
+			mergeMap(temp, v)
+			if hac.MergeEvent {
+				mergeMap(temp, event.Msg)
+			}
+			agent.ac.eventHdl.PushEvent(&Event{
+				SrcAgent:      agent,
+				CreateTime:    time.Now(),
+				DeleteTime:    time.Now().Add(agent.EventMaxAge),
+				Msg:           temp,
+				ToBeDelivered: true,
+			})
+		}
+
+	}
 }
 
 func (hac *httpAgentCore) Stop() {
 	//TODO
 }
 
-func renderAllString(v interface{}, bindings map[string]interface{}) error {
-	rv := reflect.ValueOf(v).Elem()
-	rt := rv.Type()
-	n := rt.NumField()
-	var err error
+// func renderAllStringExceptTemplate(v interface{}, bindings map[string]interface{}) error {
 
-	for i := 0; i < n; i++ {
-		field := rv.Field(i)
-
-		switch field.Kind() {
-		case reflect.Struct:
-			err = renderAllString(field.Addr().Interface(), bindings)
-			if err != nil {
-				return err
-			}
-		case reflect.Map:
-			keys := field.MapKeys()
-			for _, key := range keys {
-				elem := field.MapIndex(key)
-				if elem.Kind() == reflect.String {
-					err = render(&elem, bindings)
-					if err != nil {
-						return nil
-					}
-				}
-			}
-		case reflect.Slice:
-			for j := 0; j < field.Len(); j++ {
-				elem := field.Index(j)
-				if elem.Kind() == reflect.String {
-					err = render(&elem, bindings)
-					if err != nil {
-						return nil
-					}
-				}
-			}
-		case reflect.String:
-			err = render(&field, bindings)
-			if err != nil {
-				return nil
-			}
-		}
-	}
-	return nil
-}
+// }
 
 var engine = liquid.NewEngine()
 
-func render(elem *reflect.Value, bindings map[string]interface{}) error {
-	out, err := engine.ParseAndRenderString(elem.String(), bindings)
+func selectHtml(doc []byte, selectors []Selector, result *[]map[string]string) error {
+	//TODO
+	return nil
+}
+
+func selectJson(doc []byte, selectors []Selector, result *[]map[string]string) error {
+	docNode, err := jsonquery.Parse(bytes.NewReader(doc))
 	if err != nil {
 		return err
 	}
-	elem.SetString(out)
+	selectorNum := len(selectors)
+	nodesList := make([][]*jsonquery.Node, 0, selectorNum)
+	nodesMaxMum := 0
+	for i, v := range selectors {
+		switch v.SelectorType {
+		case "xpath":
+			var nodes []*jsonquery.Node
+			nodes, err = jsonquery.QueryAll(docNode, v.SelectorContent)
+			if nodes == nil {
+				nodes = []*jsonquery.Node{}
+			}
+			nodesList = append(nodesList, nodes)
+			if len(nodesList[i]) > nodesMaxMum {
+				nodesMaxMum = len(nodesList[i])
+			}
+		default:
+			return errors.New("unsupported json selector: " + v.SelectorType)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	for eventInd := 0; eventInd < nodesMaxMum; eventInd++ {
+		newMap := make(map[string]string)
+		for selectorInd, v := range selectors {
+			if eventInd <= len(nodesList[selectorInd]) {
+				newMap[v.VarName], err = jsonNodeToStr(nodesList[selectorInd][eventInd])
+			} else {
+				newMap[v.VarName] = ""
+			}
+			if err != nil {
+				return err
+			}
+		}
+		*result = append(*result, newMap)
+	}
+
 	return nil
 }
 
-func selectHtml(doc []byte, selectors []Selector, result map[string]string) error {
+func selectText(doc []byte, selectors []Selector, result *[]map[string]string) error {
+	//TODO
 	return nil
 }
 
-func selectJson(doc []byte, selectors []Selector, result map[string]string) error {
-	return nil
+func jsonNodeToStr(node *jsonquery.Node) (string, error) {
+	v := node.Value()
+	if reflect.ValueOf(v).Kind() == reflect.String {
+		return v.(string), nil
+	}
+	return jsoniter.MarshalToString(v)
 }
 
-func selectText(doc []byte, selectors []Selector, result map[string]string) error {
-	return nil
+// if has same key, won't overwrite
+func mergeMap(dst, src map[string]string) {
+	for k, v := range src {
+		_, ok := dst[k]
+		if !ok {
+			dst[k] = v
+		}
+	}
 }

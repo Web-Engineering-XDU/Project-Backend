@@ -2,6 +2,7 @@
 SELECT 
 	agent.id id,
 	agent.enable enable,
+	agent.event_forever event_forever,
 	agent.event_max_age event_max_age,
 	agent.prop_json_str prop_json_str,
 	agent.type_id type_id,
@@ -36,6 +37,7 @@ SELECT
 	agent.id id,
 	agent.name name,
 	agent.enable enable,
+	agent.event_forever event_forever,
 	agent.type_id type_id,
 	agent_type.name type_name,
 	agent.event_max_age event_max_age,
@@ -49,7 +51,7 @@ FROM (
 WHERE
 	agent.deleted = 0 AND
 	agent_type.deleted = 0 AND
-	agent.id = $1
+	agent.id = ?
 LIMIT 1;
 
 -- name: AddAgent :exec
@@ -58,18 +60,19 @@ INSERT INTO
 		name,
 		enable,
 		type_id,
+		event_forever,
 		event_max_age,
 		prop_json_str,
 		create_at,
 		description
 	)
-VALUES($1, $2, $3, $4, $5, $6, $7);
+VALUES(?, ?, ?, ?, ?, ?, ?, ?);
 
 -- name: SoftDeleteAgent :exec
 UPDATE agent
 SET deleted = 1
 WHERE
-	id = $1 AND
+	id = ? AND
 	deleted = 0;
 
 -- name: GetEventList :many
@@ -102,7 +105,7 @@ FROM(
 	ON event.src_agent_id = agent_type.id
 )
 WHERE
-	event.id = $1 AND
+	event.id = ? AND
 	event.deleted = 0
 LIMIT 1;
 
@@ -111,25 +114,26 @@ INSERT INTO
 	event (
 		src_agent_id,
 		json_str,
+		content_hash,
 		error,
 		log,
 		create_at,
 		delete_at
 	)
-VALUES ($1, $2, $3, $4, $5, $6);
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 -- name: SoftDeleteEventById :exec
 UPDATE event
 SET deleted = 1
 WHERE 
-	id = $1 AND
+	id = ? AND
 	deleted = 0;
 
 -- name: SoftDeleteAllEventAbout :exec
 UPDATE event
 SET deleted = 1
 WHERE
-	src_agent_id = $1 AND
+	src_agent_id = ? AND
 	deleted = 0;
 	
 -- name: GetAgentRelationList :many
@@ -144,18 +148,18 @@ INSERT INTO
 		src_agent_id,
 		dst_agent_id
 	)
-VALUES ($1, $2);
+VALUES (?, ?);
 
 -- name: DeleteAgentRelation :exec
 DELETE FROM
 	agent_relation
 WHERE
-	src_agent_id = $1 AND
-	dst_agent_id = $2;
+	src_agent_id = ? AND
+	dst_agent_id = ?;
 	
 -- name: DeleteAllAgentRelationAbout :exec
 DELETE FROM
 	agent_relation
 WHERE
-	src_agent_id = $1 OR
-	dst_agent_id = $1;
+	src_agent_id = ? OR
+	dst_agent_id = ?;

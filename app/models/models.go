@@ -9,15 +9,16 @@ import (
 )
 
 type Agent struct {
-	ID          int32
-	Name        string
-	Enable      bool
-	TypeID      int32
-	EventMaxAge int64
-	PropJsonStr string
-	CreateAt    time.Time
-	Deleted     bool
-	Description string
+	ID           int32
+	Name         string
+	Enable       bool
+	TypeID       int32
+	EventForever bool
+	EventMaxAge  int64
+	PropJsonStr  string
+	CreateAt     time.Time
+	Deleted      bool
+	Description  string
 }
 
 type AgentRelation struct {

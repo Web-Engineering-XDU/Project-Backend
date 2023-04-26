@@ -16,16 +16,37 @@ INSERT INTO
 		name,
 		enable,
 		type_id,
+		event_forever,
 		event_max_age,
 		prop_json_str,
 		create_at,
 		description
 	)
-VALUES($1, $2, $3, $4, $5, $6, $7)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?)
 `
 
-func (q *Queries) AddAgent(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, addAgent)
+type AddAgentParams struct {
+	Name         string
+	Enable       bool
+	TypeID       int32
+	EventForever bool
+	EventMaxAge  int64
+	PropJsonStr  string
+	CreateAt     time.Time
+	Description  string
+}
+
+func (q *Queries) AddAgent(ctx context.Context, arg AddAgentParams) error {
+	_, err := q.db.ExecContext(ctx, addAgent,
+		arg.Name,
+		arg.Enable,
+		arg.TypeID,
+		arg.EventForever,
+		arg.EventMaxAge,
+		arg.PropJsonStr,
+		arg.CreateAt,
+		arg.Description,
+	)
 	return err
 }
 
@@ -35,11 +56,16 @@ INSERT INTO
 		src_agent_id,
 		dst_agent_id
 	)
-VALUES ($1, $2)
+VALUES (?, ?)
 `
 
-func (q *Queries) AddAgentRelation(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, addAgentRelation)
+type AddAgentRelationParams struct {
+	SrcAgentID int32
+	DstAgentID int32
+}
+
+func (q *Queries) AddAgentRelation(ctx context.Context, arg AddAgentRelationParams) error {
+	_, err := q.db.ExecContext(ctx, addAgentRelation, arg.SrcAgentID, arg.DstAgentID)
 	return err
 }
 
@@ -48,16 +74,35 @@ INSERT INTO
 	event (
 		src_agent_id,
 		json_str,
+		content_hash,
 		error,
 		log,
 		create_at,
 		delete_at
 	)
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
-func (q *Queries) AddEvent(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, addEvent)
+type AddEventParams struct {
+	SrcAgentID  int32
+	JsonStr     string
+	ContentHash string
+	Error       bool
+	Log         string
+	CreateAt    time.Time
+	DeleteAt    time.Time
+}
+
+func (q *Queries) AddEvent(ctx context.Context, arg AddEventParams) error {
+	_, err := q.db.ExecContext(ctx, addEvent,
+		arg.SrcAgentID,
+		arg.JsonStr,
+		arg.ContentHash,
+		arg.Error,
+		arg.Log,
+		arg.CreateAt,
+		arg.DeleteAt,
+	)
 	return err
 }
 
@@ -65,12 +110,17 @@ const deleteAgentRelation = `-- name: DeleteAgentRelation :exec
 DELETE FROM
 	agent_relation
 WHERE
-	src_agent_id = $1 AND
-	dst_agent_id = $2
+	src_agent_id = ? AND
+	dst_agent_id = ?
 `
 
-func (q *Queries) DeleteAgentRelation(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteAgentRelation)
+type DeleteAgentRelationParams struct {
+	SrcAgentID int32
+	DstAgentID int32
+}
+
+func (q *Queries) DeleteAgentRelation(ctx context.Context, arg DeleteAgentRelationParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAgentRelation, arg.SrcAgentID, arg.DstAgentID)
 	return err
 }
 
@@ -78,12 +128,17 @@ const deleteAllAgentRelationAbout = `-- name: DeleteAllAgentRelationAbout :exec
 DELETE FROM
 	agent_relation
 WHERE
-	src_agent_id = $1 OR
-	dst_agent_id = $1
+	src_agent_id = ? OR
+	dst_agent_id = ?
 `
 
-func (q *Queries) DeleteAllAgentRelationAbout(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, deleteAllAgentRelationAbout)
+type DeleteAllAgentRelationAboutParams struct {
+	SrcAgentID int32
+	DstAgentID int32
+}
+
+func (q *Queries) DeleteAllAgentRelationAbout(ctx context.Context, arg DeleteAllAgentRelationAboutParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAllAgentRelationAbout, arg.SrcAgentID, arg.DstAgentID)
 	return err
 }
 
@@ -151,6 +206,7 @@ SELECT
 	agent.id id,
 	agent.name name,
 	agent.enable enable,
+	agent.event_forever event_forever,
 	agent.type_id type_id,
 	agent_type.name type_name,
 	agent.event_max_age event_max_age,
@@ -164,29 +220,31 @@ FROM (
 WHERE
 	agent.deleted = 0 AND
 	agent_type.deleted = 0 AND
-	agent.id = $1
+	agent.id = ?
 LIMIT 1
 `
 
 type GetAgentDetailRow struct {
-	ID          int32
-	Name        string
-	Enable      bool
-	TypeID      int32
-	TypeName    string
-	EventMaxAge int64
-	PropJsonStr string
-	CreateAt    time.Time
-	Description string
+	ID           int32
+	Name         string
+	Enable       bool
+	EventForever bool
+	TypeID       int32
+	TypeName     string
+	EventMaxAge  int64
+	PropJsonStr  string
+	CreateAt     time.Time
+	Description  string
 }
 
-func (q *Queries) GetAgentDetail(ctx context.Context) (GetAgentDetailRow, error) {
-	row := q.db.QueryRowContext(ctx, getAgentDetail)
+func (q *Queries) GetAgentDetail(ctx context.Context, id int32) (GetAgentDetailRow, error) {
+	row := q.db.QueryRowContext(ctx, getAgentDetail, id)
 	var i GetAgentDetailRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Enable,
+		&i.EventForever,
 		&i.TypeID,
 		&i.TypeName,
 		&i.EventMaxAge,
@@ -236,6 +294,7 @@ const getAgentRuntimeInfoList = `-- name: GetAgentRuntimeInfoList :many
 SELECT 
 	agent.id id,
 	agent.enable enable,
+	agent.event_forever event_forever,
 	agent.event_max_age event_max_age,
 	agent.prop_json_str prop_json_str,
 	agent.type_id type_id,
@@ -251,13 +310,14 @@ WHERE
 `
 
 type GetAgentRuntimeInfoListRow struct {
-	ID          int32
-	Enable      bool
-	EventMaxAge int64
-	PropJsonStr string
-	TypeID      int32
-	AllowInput  bool
-	AllowOutput bool
+	ID           int32
+	Enable       bool
+	EventForever bool
+	EventMaxAge  int64
+	PropJsonStr  string
+	TypeID       int32
+	AllowInput   bool
+	AllowOutput  bool
 }
 
 func (q *Queries) GetAgentRuntimeInfoList(ctx context.Context) ([]GetAgentRuntimeInfoListRow, error) {
@@ -272,6 +332,7 @@ func (q *Queries) GetAgentRuntimeInfoList(ctx context.Context) ([]GetAgentRuntim
 		if err := rows.Scan(
 			&i.ID,
 			&i.Enable,
+			&i.EventForever,
 			&i.EventMaxAge,
 			&i.PropJsonStr,
 			&i.TypeID,
@@ -305,7 +366,7 @@ FROM(
 	ON event.src_agent_id = agent_type.id
 )
 WHERE
-	event.id = $1 AND
+	event.id = ? AND
 	event.deleted = 0
 LIMIT 1
 `
@@ -320,8 +381,8 @@ type GetEventDetailRow struct {
 	CreateAt     time.Time
 }
 
-func (q *Queries) GetEventDetail(ctx context.Context) (GetEventDetailRow, error) {
-	row := q.db.QueryRowContext(ctx, getEventDetail)
+func (q *Queries) GetEventDetail(ctx context.Context, id int32) (GetEventDetailRow, error) {
+	row := q.db.QueryRowContext(ctx, getEventDetail, id)
 	var i GetEventDetailRow
 	err := row.Scan(
 		&i.ID,
@@ -400,12 +461,12 @@ const softDeleteAgent = `-- name: SoftDeleteAgent :exec
 UPDATE agent
 SET deleted = 1
 WHERE
-	id = $1 AND
+	id = ? AND
 	deleted = 0
 `
 
-func (q *Queries) SoftDeleteAgent(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, softDeleteAgent)
+func (q *Queries) SoftDeleteAgent(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, softDeleteAgent, id)
 	return err
 }
 
@@ -413,12 +474,12 @@ const softDeleteAllEventAbout = `-- name: SoftDeleteAllEventAbout :exec
 UPDATE event
 SET deleted = 1
 WHERE
-	src_agent_id = $1 AND
+	src_agent_id = ? AND
 	deleted = 0
 `
 
-func (q *Queries) SoftDeleteAllEventAbout(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, softDeleteAllEventAbout)
+func (q *Queries) SoftDeleteAllEventAbout(ctx context.Context, srcAgentID int32) error {
+	_, err := q.db.ExecContext(ctx, softDeleteAllEventAbout, srcAgentID)
 	return err
 }
 
@@ -426,11 +487,11 @@ const softDeleteEventById = `-- name: SoftDeleteEventById :exec
 UPDATE event
 SET deleted = 1
 WHERE 
-	id = $1 AND
+	id = ? AND
 	deleted = 0
 `
 
-func (q *Queries) SoftDeleteEventById(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, softDeleteEventById)
+func (q *Queries) SoftDeleteEventById(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, softDeleteEventById, id)
 	return err
 }

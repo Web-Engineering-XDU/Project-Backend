@@ -42,7 +42,7 @@ func (eventHdl *eventHandler) run() {
 							panic(err)
 						}
 					}
-					err = models.DB().AddEvent(eventHdl.agents.ctx, models.AddEventParams{
+					err = models.Query().AddEvent(eventHdl.agents.ctx, models.AddEventParams{
 						SrcAgentID:  int32(event.SrcAgent.Id),
 						JsonStr:     jsonStr,
 						ContentHash: HashMapString(event.Msg),

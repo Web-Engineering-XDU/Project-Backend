@@ -14,10 +14,10 @@ type Message map[string]string
 var emptyMsg = map[string]string{}
 
 type Event struct {
-	SrcAgent     *Agent
-	CreateTime   time.Time
-	DeleteTime   time.Time
-	Msg          Message
+	SrcAgent   *Agent
+	CreateTime time.Time
+	DeleteTime time.Time
+	Msg        Message
 
 	MetError      bool
 	Log           string
@@ -34,7 +34,8 @@ type AgentInfo struct {
 	AllowInput, AllowOutput bool
 	SrcAgentId, DstAgentId  []int
 
-	EventMaxAge time.Duration
+	EventForever bool
+	EventMaxAge  time.Duration
 }
 
 type AgentCore interface {

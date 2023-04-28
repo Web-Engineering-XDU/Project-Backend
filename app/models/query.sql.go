@@ -352,6 +352,83 @@ func (q *Queries) GetAgentRuntimeInfoList(ctx context.Context) ([]GetAgentRuntim
 	return items, nil
 }
 
+const getAgentType = `-- name: GetAgentType :one
+SELECT
+	id,
+	name,
+	allow_input,
+	allow_output
+FROM agent_type
+WHERE
+	deleted = 0 AND
+	id = ?
+`
+
+type GetAgentTypeRow struct {
+	ID          int32
+	Name        string
+	AllowInput  bool
+	AllowOutput bool
+}
+
+func (q *Queries) GetAgentType(ctx context.Context, id int32) (GetAgentTypeRow, error) {
+	row := q.db.QueryRowContext(ctx, getAgentType, id)
+	var i GetAgentTypeRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.AllowInput,
+		&i.AllowOutput,
+	)
+	return i, err
+}
+
+const getAgentTypes = `-- name: GetAgentTypes :many
+SELECT
+	id,
+	name,
+	allow_input,
+	allow_output
+FROM agent_type
+WHERE
+	deleted = 0
+`
+
+type GetAgentTypesRow struct {
+	ID          int32
+	Name        string
+	AllowInput  bool
+	AllowOutput bool
+}
+
+func (q *Queries) GetAgentTypes(ctx context.Context) ([]GetAgentTypesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAgentTypes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAgentTypesRow
+	for rows.Next() {
+		var i GetAgentTypesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.AllowInput,
+			&i.AllowOutput,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getEventDetail = `-- name: GetEventDetail :one
 SELECT
 	event.id id,

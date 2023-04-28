@@ -10,10 +10,12 @@ import (
 )
 
 var quries *Queries
+var db *sql.DB
 
 func InitDB(config config.MySQL) (*Queries, error) {
 	if quries == nil {
-		db, err := sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/huggo?parseTime=true", config.User, config.Password, config.Host, config.Port))
+		var err error
+		db, err = sql.Open("mysql", fmt.Sprintf("%v:%v@tcp(%v:%v)/huggo?parseTime=true", config.User, config.Password, config.Host, config.Port))
 		if err != nil {
 			return nil, err
 		}
@@ -23,6 +25,10 @@ func InitDB(config config.MySQL) (*Queries, error) {
 	return nil, errors.New("Cannot init DB twice")
 }
 
-func DB() *Queries {
+func Query() *Queries {
 	return quries
+}
+
+func DB() *sql.DB {
+	return db
 }

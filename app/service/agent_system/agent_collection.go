@@ -22,11 +22,11 @@ func NewAgentCollection() agentCollection {
 }
 
 func (ac *agentCollection) init() error {
-	agents, err := models.DB().GetAgentRuntimeInfoList(ac.ctx)
+	agents, err := models.Query().GetAgentRuntimeInfoList(ac.ctx)
 	if err != nil {
 		return err
 	}
-	relations, err := models.DB().GetAgentRelationList(ac.ctx)
+	relations, err := models.Query().GetAgentRelationList(ac.ctx)
 	if err != nil {
 		return err
 	}
@@ -44,6 +44,7 @@ func (ac *agentCollection) init() error {
 				AllowOutput:      v.AllowOutput,
 				SrcAgentId:       make([]int, 0, 2),
 				DstAgentId:       make([]int, 0, 2),
+				EventForever:     v.EventForever,
 				EventMaxAge:      time.Duration(v.EventMaxAge),
 			},
 			ac:    ac,
@@ -72,6 +73,8 @@ func (ac *agentCollection) init() error {
 	return nil
 }
 
+func (ac *agentCollection) initAgent() error
+
 func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
 	agent, ok := agents.agentMap[agentId]
 	if !ok {
@@ -86,5 +89,5 @@ func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
 	// defer cancle()
 	// agent.Run(ctx, agent, e)
 
-	agent.Run(context.Background(), agent , e)
+	agent.Run(context.Background(), agent, e)
 }

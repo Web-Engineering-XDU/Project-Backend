@@ -54,7 +54,7 @@ WHERE
 	agent.id = ?
 LIMIT 1;
 
--- name: AddAgent :exec
+-- name: AddAgent :one
 INSERT INTO
 	agent(
 		name,
@@ -66,7 +66,9 @@ INSERT INTO
 		create_at,
 		description
 	)
-VALUES(?, ?, ?, ?, ?, ?, ?, ?);
+VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+-- VALUES($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id;
 
 -- name: SoftDeleteAgent :exec
 UPDATE agent
@@ -74,6 +76,27 @@ SET deleted = 1
 WHERE
 	id = ? AND
 	deleted = 0;
+
+-- name: GetAgentTypes :many
+SELECT
+	id,
+	name,
+	allow_input,
+	allow_output
+FROM agent_type
+WHERE
+	deleted = 0;
+
+-- name: GetAgentType :one
+SELECT
+	id,
+	name,
+	allow_input,
+	allow_output
+FROM agent_type
+WHERE
+	deleted = 0 AND
+	id = ?;
 
 -- name: GetEventList :many
 SELECT

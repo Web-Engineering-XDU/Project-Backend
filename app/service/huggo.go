@@ -25,6 +25,8 @@ func New(huggoConfig config.Config) *Huggo {
 }
 
 func (huggo *Huggo) Run() {
-	models.InitDB(huggo.config.MySQL)
+	if err:=models.InitDB(huggo.config.MySQL) ; err!=nil{
+		panic(err)
+	}
 	huggo.agentSys.Run()
 }

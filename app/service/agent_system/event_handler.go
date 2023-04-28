@@ -42,8 +42,8 @@ func (eventHdl *eventHandler) run() {
 							panic(err)
 						}
 					}
-					err = models.Query().AddEvent(eventHdl.agents.ctx, models.AddEventParams{
-						SrcAgentID:  int32(event.SrcAgent.Id),
+					err = models.InsertEvent(&models.Event{
+						SrcAgentId:  event.SrcAgent.Id,
 						JsonStr:     jsonStr,
 						ContentHash: HashMapString(event.Msg),
 						Error:       event.MetError,

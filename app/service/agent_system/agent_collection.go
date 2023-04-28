@@ -22,23 +22,17 @@ func NewAgentCollection() agentCollection {
 }
 
 func (ac *agentCollection) init() error {
-	agents, err := models.Query().GetAgentRuntimeInfoList(ac.ctx)
-	if err != nil {
-		return err
-	}
-	relations, err := models.Query().GetAgentRelationList(ac.ctx)
-	if err != nil {
-		return err
-	}
+	agents := models.SelectAgentRuntimeList()
+	relations := models.SelectAgentRelationList()
 
 	schedule_agents := make([]int, 0, 10)
 
 	for _, v := range agents {
 		ac.agentMap[int(v.ID)] = &Agent{
 			AgentInfo: AgentInfo{
-				Id:               int(v.ID),
+				Id:               v.ID,
 				Enable:           v.Enable,
-				AgentTypeId:      int(v.TypeID),
+				AgentTypeId:      v.TypeId,
 				AgentCoreJsonStr: v.PropJsonStr,
 				AllowInput:       v.AllowInput,
 				AllowOutput:      v.AllowOutput,
@@ -51,19 +45,19 @@ func (ac *agentCollection) init() error {
 			Ctx:   ac.ctx,
 			Mutex: sync.RWMutex{},
 		}
-		err = ac.agentMap[int(v.ID)].loadCore()
+		err := ac.agentMap[v.ID].loadCore()
 		if err != nil {
 			//TODO
 			panic(err)
 		}
-		if v.TypeID == 1 && v.Enable {
+		if v.TypeId == 1 && v.Enable {
 			schedule_agents = append(schedule_agents, int(v.ID))
 		}
 	}
 
 	for _, v := range relations {
-		ac.agentMap[int(v.SrcAgentID)].DstAgentId = append(ac.agentMap[int(v.SrcAgentID)].DstAgentId, int(v.DstAgentID))
-		ac.agentMap[int(v.DstAgentID)].SrcAgentId = append(ac.agentMap[int(v.DstAgentID)].SrcAgentId, int(v.SrcAgentID))
+		ac.agentMap[v.SrcAgentId].DstAgentId = append(ac.agentMap[v.SrcAgentId].DstAgentId, v.DstAgentId)
+		ac.agentMap[v.DstAgentId].SrcAgentId = append(ac.agentMap[v.DstAgentId].SrcAgentId, v.SrcAgentId)
 	}
 
 	for _, v := range schedule_agents {
@@ -72,8 +66,6 @@ func (ac *agentCollection) init() error {
 
 	return nil
 }
-
-func (ac *agentCollection) initAgent() error
 
 func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
 	agent, ok := agents.agentMap[agentId]

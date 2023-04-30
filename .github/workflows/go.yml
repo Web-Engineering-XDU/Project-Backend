@@ -17,7 +17,9 @@ jobs:
         go-version: 1.20
 
     - name: Build # 编译项目
-      run: go build -o ./.github/bin/huggo ./cmd
+      run: |
+        go mod tidy
+        go build -o ./.github/bin/huggo ./cmd
 
     - name: 拉取编译结果到腾讯云
       uses: easingthemes/ssh-deploy@main

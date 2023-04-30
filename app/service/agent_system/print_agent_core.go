@@ -14,7 +14,11 @@ func (a *Agent) loadPrintAgentCore() error {
 }
 
 func (pac *printAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
-	fmt.Printf("%v Recive Event: %v from %v\n", agent.Id, event.Msg, event.SrcAgent.Id)
+	fmt.Printf("%v Recive Event: %v from %v\n", agent.ID, event.Msg, event.SrcAgent.ID)
 }
 
 func (*printAgentCore) Stop() {}
+
+func (*printAgentCore) IgnoreDuplicateEvent() bool{
+	return true
+}

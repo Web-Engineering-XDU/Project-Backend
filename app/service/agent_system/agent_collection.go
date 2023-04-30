@@ -3,43 +3,51 @@ package agentsystem
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
 
-type agentCollection struct {
-	agentMap map[int]*Agent
-	eventHdl *eventHandler
-	ctx      context.Context
+type AgentCollection struct {
+	agentMap     map[int]*Agent
+	agentTypeMap map[int]*AgentTypeProp
+	eventHdl     *eventHandler
+	ctx          context.Context
 }
 
-func NewAgentCollection() agentCollection {
-	return agentCollection{
+func NewAgentCollection() AgentCollection {
+	return AgentCollection{
 		agentMap: make(map[int]*Agent),
 		ctx:      context.Background(),
 	}
 }
 
-func (ac *agentCollection) init() error {
+func (ac *AgentCollection) init() error {
+
+	agentTypes := models.SelectAgentTypeList()
+	ac.agentTypeMap = make(map[int]*AgentTypeProp, len(agentTypes))
+	for _, v := range agentTypes {
+		ac.agentTypeMap[v.ID] = &AgentTypeProp{
+			AllowInput:  v.AllowInput,
+			AllowOutput: v.AllowOutput,
+		}
+	}
+
 	agents := models.SelectAgentRuntimeList()
 	relations := models.SelectAgentRelationList()
 
-	schedule_agents := make([]int, 0, 10)
+	schedule_agents := make([]*Agent, 0, 10)
 
 	for _, v := range agents {
-		ac.agentMap[int(v.ID)] = &Agent{
+		ac.agentMap[v.ID] = &Agent{
 			AgentInfo: AgentInfo{
-				Id:               v.ID,
+				ID:               v.ID,
 				Enable:           v.Enable,
-				AgentTypeId:      v.TypeId,
+				TypeId:           v.TypeId,
 				AgentCoreJsonStr: v.PropJsonStr,
-				AllowInput:       v.AllowInput,
-				AllowOutput:      v.AllowOutput,
 				SrcAgentId:       make([]int, 0, 2),
 				DstAgentId:       make([]int, 0, 2),
 				EventForever:     v.EventForever,
-				EventMaxAge:      time.Duration(v.EventMaxAge),
+				EventMaxAge:      v.EventMaxAge,
 			},
 			ac:    ac,
 			Ctx:   ac.ctx,
@@ -51,7 +59,7 @@ func (ac *agentCollection) init() error {
 			panic(err)
 		}
 		if v.TypeId == 1 && v.Enable {
-			schedule_agents = append(schedule_agents, int(v.ID))
+			schedule_agents = append(schedule_agents, ac.agentMap[v.ID])
 		}
 	}
 
@@ -61,19 +69,24 @@ func (ac *agentCollection) init() error {
 	}
 
 	for _, v := range schedule_agents {
-		ac.NextAgentDo(v, nil)
+		go v.Run(ac.ctx, v, nil)
 	}
 
 	return nil
 }
 
-func (agents *agentCollection) NextAgentDo(agentId int, e *Event) {
+func (agents *AgentCollection) NextAgentDo(agentId int, e *Event) {
 	agent, ok := agents.agentMap[agentId]
 	if !ok {
 		//TODO no such agent
 		return
 	}
-	if !agent.Enable || !agent.AllowInput && agent.AgentTypeId != 1 {
+	agentTypeInfo, ok := agents.agentTypeMap[agent.TypeId]
+	if !ok {
+		//TODO no such type
+		return
+	}
+	if !agent.Enable || !agentTypeInfo.AllowInput {
 		//target do not allow input
 		return
 	}

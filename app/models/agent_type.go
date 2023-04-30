@@ -15,3 +15,8 @@ type AgentType struct {
 func (*AgentType) TableName() string {
 	return agentTypeTableName
 }
+
+func SelectAgentTypeList() (ret []AgentType){
+	DB().Find(&ret)
+	return ret
+}

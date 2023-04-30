@@ -7,13 +7,12 @@ import (
 	"sort"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
-	"github.com/go-sql-driver/mysql"
 	jsoniter "github.com/json-iterator/go"
 )
 
 type eventHandler struct {
 	eventChan chan *Event
-	agents    *agentCollection
+	agents    *AgentCollection
 }
 
 func NewEventHandler() eventHandler {
@@ -30,6 +29,12 @@ func (eventHdl *eventHandler) run() {
 			for {
 				var err error
 				event = <-eventHdl.eventChan
+
+				_, ok := eventHdl.agents.agentMap[event.SrcAgent.ID]
+				if !ok {
+					continue
+				}
+
 				if event.SrcAgent.EventMaxAge != 0 {
 					jsonStr := ""
 					log := ""
@@ -42,20 +47,21 @@ func (eventHdl *eventHandler) run() {
 							panic(err)
 						}
 					}
-					err = models.InsertEvent(&models.Event{
-						SrcAgentId:  event.SrcAgent.Id,
-						JsonStr:     jsonStr,
-						ContentHash: HashMapString(event.Msg),
-						Error:       event.MetError,
-						Log:         log,
-						CreateAt:    event.CreateTime,
-						DeleteAt:    event.DeleteTime,
-					})
-					if err != nil {
-						switch err.(*mysql.MySQLError).Number {
-						case 1062:
-							event.ToBeDelivered = false
-						default:
+					event.Msg["$"] = fmt.Sprint(event.SrcAgent.ID)
+					eventHash := HashMapString(event.Msg)
+					if models.SelectHashCount(eventHash, event.SrcAgent.ID) > 0 && event.SrcAgent.IgnoreDuplicateEvent() {
+						event.ToBeDelivered = false
+					} else {
+						err = models.InsertEvent(&models.Event{
+							SrcAgentId:  event.SrcAgent.ID,
+							JsonStr:     jsonStr,
+							ContentHash: eventHash,
+							Error:       event.MetError,
+							Log:         log,
+							CreateAt:    event.CreateTime,
+							DeleteAt:    event.DeleteTime,
+						})
+						if err != nil {
 							panic(err)
 						}
 					}

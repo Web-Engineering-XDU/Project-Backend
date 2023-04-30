@@ -24,15 +24,18 @@ type Event struct {
 	ToBeDelivered bool
 }
 
+type AgentTypeProp struct {
+	AllowInput, AllowOutput bool
+}
+
 type AgentInfo struct {
-	Id     int
+	ID     int
 	Enable bool
 
-	AgentTypeId      int
+	TypeId           int
 	AgentCoreJsonStr string
 
-	AllowInput, AllowOutput bool
-	SrcAgentId, DstAgentId  []int
+	SrcAgentId, DstAgentId []int
 
 	EventForever bool
 	EventMaxAge  time.Duration
@@ -41,13 +44,14 @@ type AgentInfo struct {
 type AgentCore interface {
 	Run(context.Context, *Agent, *Event)
 	Stop()
+	IgnoreDuplicateEvent() bool
 }
 
 type Agent struct {
 	AgentInfo
 	AgentCore
 
-	ac *agentCollection
+	ac *AgentCollection
 
 	Ctx   context.Context
 	Mutex sync.RWMutex
@@ -56,7 +60,7 @@ type Agent struct {
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func (a *Agent) loadCore() error {
-	switch a.AgentInfo.AgentTypeId {
+	switch a.TypeId {
 	case 1:
 		return a.loadSchduleAgentCore()
 	case 2:

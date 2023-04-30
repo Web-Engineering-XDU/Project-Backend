@@ -1,0 +1,215 @@
+basePath: /
+definitions:
+  github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail:
+    properties:
+      allow_input:
+        type: boolean
+      allow_output:
+        type: boolean
+      create_at:
+        type: string
+      description:
+        type: string
+      enable:
+        type: boolean
+      event_forever:
+        type: boolean
+      event_max_age:
+        $ref: '#/definitions/time.Duration'
+      id:
+        type: integer
+      name:
+        type: string
+      prop_json_str:
+        type: string
+      type_id:
+        type: integer
+      type_name:
+        type: string
+    type: object
+  swaggo.DeleteAgentResponse:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
+  swaggo.GetAgentListResponse:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      result:
+        $ref: '#/definitions/swaggo.GetAgentListResponseResult'
+    type: object
+  swaggo.GetAgentListResponseResult:
+    properties:
+      content:
+        items:
+          $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail'
+        type: array
+      count:
+        type: integer
+    type: object
+  swaggo.NewAgentResponse:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      result:
+        $ref: '#/definitions/swaggo.NewAgentResponseResult'
+    type: object
+  swaggo.NewAgentResponseResult:
+    properties:
+      id:
+        type: integer
+    type: object
+  time.Duration:
+    enum:
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /agent:
+    delete:
+      consumes:
+      - application/json
+      description: delete agents
+      parameters:
+      - description: agent id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.DeleteAgentResponse'
+      summary: Delete agents
+      tags:
+      - agents
+    get:
+      consumes:
+      - application/json
+      description: get agents
+      parameters:
+      - description: agent id. Don't include in request if you don't specify a id
+        in: query
+        name: id
+        type: integer
+      - description: number of agents in a page
+        in: query
+        name: number
+        required: true
+        type: integer
+      - description: page sequence number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.GetAgentListResponse'
+      summary: List agents
+      tags:
+      - agents
+    put:
+      consumes:
+      - application/json
+      description: new agents
+      parameters:
+      - description: enable the agent
+        in: formData
+        name: enable
+        required: true
+        type: boolean
+      - description: agent type id
+        in: formData
+        name: type_id
+        required: true
+        type: integer
+      - description: name of the agent
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: whether keep the event forever
+        in: formData
+        name: event_forever
+        required: true
+        type: boolean
+      - description: event max age in timestamp
+        in: formData
+        name: event_max_age
+        required: true
+        type: integer
+      - description: props used by specific agent type in json
+        in: formData
+        name: prop_json_str
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.NewAgentResponse'
+      summary: New agents
+      tags:
+      - agents
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

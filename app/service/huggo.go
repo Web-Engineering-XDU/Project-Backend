@@ -13,20 +13,21 @@ type Huggo struct {
 	agentSys  *agentsystem.AgentSystem
 }
 
-func New(huggoConfig config.Config) *Huggo {
+func New(huggoConfig config.Config, setController func(*gin.Engine, *agentsystem.AgentCollection) *gin.Engine) *Huggo {
 	agents := agentsystem.NewAgentCollection()
 	eventHdl := agentsystem.NewEventHandler()
-	return &Huggo{
+	ret := &Huggo{
 		config: huggoConfig,
-		//TODO
-		ginServer: gin.Default(),
 		agentSys:  agentsystem.NewAgentSystem(&agents, &eventHdl),
 	}
+	ret.ginServer = setController(gin.Default(), ret.agentSys.Agents)
+	return ret
 }
 
-func (huggo *Huggo) Run() {
+func (huggo *Huggo) Run(port string) {
 	if err:=models.InitDB(huggo.config.MySQL) ; err!=nil{
 		panic(err)
 	}
-	huggo.agentSys.Run()
+	go huggo.agentSys.Run()
+	huggo.ginServer.Run(port)
 }

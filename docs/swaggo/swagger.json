@@ -57,10 +57,109 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail"
-                            }
+                            "$ref": "#/definitions/swaggo.GetAgentListResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "new agents",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agents"
+                ],
+                "summary": "New agents",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "enable the agent",
+                        "name": "enable",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "agent type id",
+                        "name": "type_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of the agent",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "whether keep the event forever",
+                        "name": "event_forever",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "event max age in timestamp",
+                        "name": "event_max_age",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "props used by specific agent type in json",
+                        "name": "prop_json_str",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.NewAgentResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete agents",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Delete agents",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "agent id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.DeleteAgentResponse"
                         }
                     }
                 }
@@ -71,13 +170,13 @@
         "github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail": {
             "type": "object",
             "properties": {
-                "allowInput": {
+                "allow_input": {
                     "type": "boolean"
                 },
-                "allowOutput": {
+                "allow_output": {
                     "type": "boolean"
                 },
-                "createAt": {
+                "create_at": {
                     "type": "string"
                 },
                 "description": {
@@ -86,10 +185,10 @@
                 "enable": {
                     "type": "boolean"
                 },
-                "eventForever": {
+                "event_forever": {
                     "type": "boolean"
                 },
-                "eventMaxAge": {
+                "event_max_age": {
                     "$ref": "#/definitions/time.Duration"
                 },
                 "id": {
@@ -98,13 +197,74 @@
                 "name": {
                     "type": "string"
                 },
-                "propJsonStr": {
-                    "type": "string"
-                },
-                "typeName": {
+                "prop_json_str": {
                     "type": "string"
                 },
                 "type_id": {
+                    "type": "integer"
+                },
+                "type_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggo.DeleteAgentResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "swaggo.GetAgentListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/swaggo.GetAgentListResponseResult"
+                }
+            }
+        },
+        "swaggo.GetAgentListResponseResult": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "swaggo.NewAgentResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/swaggo.NewAgentResponseResult"
+                }
+            }
+        },
+        "swaggo.NewAgentResponseResult": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "integer"
                 }
             }
@@ -112,16 +272,11 @@
         "time.Duration": {
             "type": "integer",
             "enum": [
-                -9223372036854775808,
-                9223372036854775807,
                 1,
                 1000,
                 1000000,
                 1000000000,
                 60000000000,
-                3600000000000,
-                -9223372036854775808,
-                9223372036854775807,
                 1,
                 1000,
                 1000000,
@@ -130,16 +285,11 @@
                 3600000000000
             ],
             "x-enum-varnames": [
-                "minDuration",
-                "maxDuration",
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",
                 "Second",
                 "Minute",
-                "Hour",
-                "minDuration",
-                "maxDuration",
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",

@@ -7,6 +7,8 @@ import (
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 	agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
 	"github.com/gin-gonic/gin"
+	_ "github.com/Web-Engineering-XDU/Project-Backend/docs/swaggo"
+
 )
 
 type getListParams struct {
@@ -23,7 +25,7 @@ type getListParams struct {
 // @Param        id			query	int    false    "agent id. Don't include in request if you don't specify a id"  
 // @Param        number		query	int    true		"number of agents in a page"
 // @Param        page   	query	int    true		"page sequence number"
-// @Success      200  {array}   models.AgentDetail
+// @Success      200  {object}   swaggo.GetAgentListResponse
 // @Router       /agent [get]
 func GetAgentList(c *gin.Context) {
 	params := &getListParams{}
@@ -54,14 +56,14 @@ func GetAgentList(c *gin.Context) {
 // @Tags         agents
 // @Accept       json
 // @Produce      json
-// @Param        enable			body	bool		true
-// @Param		 type_id		body	int			true
-// @Param		 name			body	string		true
-// @Param		 description	body	string		true
-// @Param		 event_forever	body	bool		true
-// @Param		 event_max_age	body	int			true
-// @Param		 prop_json_str	body	string		true
-// @Success      200  {int}   int	"id of this agent"
+// @Param        enable			formData	bool		true	"enable the agent"
+// @Param		 type_id		formData	int			true	"agent type id"
+// @Param		 name			formData	string		true	"name of the agent"
+// @Param		 description	formData	string		true	"description"
+// @Param		 event_forever	formData	bool		true	"whether keep the event forever"
+// @Param		 event_max_age	formData	int			true	"event max age in timestamp"
+// @Param		 prop_json_str	formData	string		true	"props used by specific agent type in json"
+// @Success      200  {object}   swaggo.NewAgentResponse
 // @Router       /agent [put]
 func NewAgent(c *gin.Context) {
 	params := &models.Agent{}
@@ -81,13 +83,13 @@ func NewAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", map[string]int{"id": params.ID}))
 }
 
-// @Summary      List agents
-// @Description  get agents
+// @Summary      Delete agents
+// @Description  delete agents
 // @Tags         agents
 // @Accept       json
 // @Produce      json
 // @Param        id		query	int    true    "agent id"  
-// @Success      200  {array}   models.AgentDetail
+// @Success      200  {object}   swaggo.DeleteAgentResponse
 // @Router       /agent [delete]
 func DeleteAgent(c *gin.Context) {
 	IdStr, ok := c.GetQuery("id")

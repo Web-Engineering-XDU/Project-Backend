@@ -9,6 +9,10 @@ import (
 	_ "github.com/Web-Engineering-XDU/Project-Backend/docs/swaggo"
 )
 
+type Config struct {
+	ConfigPath string
+}
+
 // @title           Swagger Example API
 // @version         1.0
 // @description     This is a sample server celler server.
@@ -30,7 +34,7 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	var config config.Config
-	err:= cleanenv.ReadConfig("../config/config.yml", &config)
+	err:= cleanenv.ReadConfig("./config.yml", &config)
 	if err != nil {
 		panic(err)
 	}

@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/antchfx/jsonquery v1.3.2
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/osteele/liquid v1.3.0
@@ -21,7 +22,6 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/antchfx/xpath v1.2.3 // indirect
-	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect

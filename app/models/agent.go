@@ -9,24 +9,24 @@ import (
 const agentTableName = "agents"
 
 type AgentBasic struct {
-	ID     int  `gorm:"primaryKey" form:"id"`
-	Enable bool `form:"enable"`
-	TypeId int  `form:"type_id"`
+	ID     int  `gorm:"primaryKey" form:"id" json:"id"`
+	Enable bool `form:"enable" json:"enable"`
+	TypeId int  `form:"type_id" json:"type_id"`
 }
 
 type AgentExtra struct {
-	Name        string `form:"name"`
-	Description string `form:"description"`
-	CreateAt    time.Time
+	Name        string `form:"name" json:"name"`
+	Description string `form:"description" json:"description"`
+	CreateAt    time.Time `json:"create_at"`
 }
 
 type Agent struct {
 	AgentBasic
 	AgentExtra
 
-	EventForever bool          `form:"event_forever"`
-	EventMaxAge  time.Duration `form:"event_max_age"`
-	PropJsonStr  string        `form:"prop_json_str"`
+	EventForever bool          `form:"event_forever" json:"event_forever"`
+	EventMaxAge  time.Duration `form:"event_max_age" json:"event_max_age"`
+	PropJsonStr  string        `form:"prop_json_str" json:"prop_json_str"`
 
 	Deleted soft_delete.DeletedAt `gorm:"softDelete:flag"`
 }
@@ -49,19 +49,19 @@ func (u *Agent) ToUpdateMap() map[string]interface{} {
 type AgentRuntime struct {
 	AgentBasic
 
-	EventForever bool
-	EventMaxAge  time.Duration
-	PropJsonStr  string
+	EventForever bool          `json:"event_forever"`
+	EventMaxAge  time.Duration `json:"event_max_age"`
+	PropJsonStr  string        `json:"prop_json_str"`
 
-	AllowInput  bool
-	AllowOutput bool
+	AllowInput  bool `json:"allow_input"`
+	AllowOutput bool `json:"allow_output"`
 }
 
 type AgentDetail struct {
 	AgentRuntime
 
 	AgentExtra
-	TypeName string
+	TypeName string `json:"type_name"`
 }
 
 func InsertAgent(agent *Agent) error {
@@ -144,6 +144,6 @@ func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {
 	}
 }
 
-func UpdateAgent(agent *Agent) bool{
+func UpdateAgent(agent *Agent) bool {
 	return DB().Model(agent).Updates(agent.ToUpdateMap()).RowsAffected > 0
 }

@@ -21,7 +21,26 @@ func InitDB(config config.MySQL) error {
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		SkipDefaultTransaction: true,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Agent{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&AgentType{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&AgentRelation{})
+	if err != nil {
+		return err
+	}
+	err = db.AutoMigrate(&Event{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func DB() *gorm.DB{

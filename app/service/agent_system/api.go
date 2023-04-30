@@ -61,23 +61,36 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) bool {
 
 	agent.Mutex.Lock()
 
-	if agent.AgentCoreJsonStr != a.PropJsonStr {
-		agent.Stop()
-		agent.AgentCoreJsonStr = a.PropJsonStr
-		err := agent.loadCore()
+	var err error
+	coreChanged := agent.AgentCoreJsonStr != a.PropJsonStr
+	agent.AgentCoreJsonStr = a.PropJsonStr
+
+	if coreChanged {
+		if agent.Enable {
+			agent.Stop()
+		}
+		err = agent.loadCore()
 		if err != nil {
 			//TODO
 			panic(err)
+		}
+		if a.Enable {
+			go agent.Run(agent.Ctx, agent, nil)
+		}
+	} else {
+		if agent.Enable != a.Enable{
+			if a.Enable{
+				go agent.Run(agent.Ctx, agent, nil)
+			} else {
+				agent.Stop()
+			}
 		}
 	}
 	agent.Enable = a.Enable
 	agent.EventForever = a.EventForever
 	agent.EventMaxAge = a.EventMaxAge
 	agent.Mutex.Unlock()
-	
-	if agent.Enable && agent.TypeId == 1 {
-		go agent.Run(agent.Ctx, agent, nil)
-	}
+
 	return true
 }
 

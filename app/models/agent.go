@@ -9,14 +9,14 @@ import (
 const agentTableName = "agents"
 
 type AgentBasic struct {
-	ID     int  `gorm:"primaryKey"`
+	ID     int  `gorm:"primaryKey" form:"id"`
 	Enable bool `form:"enable"`
 	TypeId int  `form:"type_id"`
 }
 
 type AgentExtra struct {
-	Name        *string `form:"name"`
-	Description *string `form:"description"`
+	Name        string `form:"name"`
+	Description string `form:"description"`
 	CreateAt    time.Time
 }
 
@@ -115,6 +115,7 @@ func SelectAgentDetailList(limit, offset int) (ret []AgentDetail) {
 		agent_types.allow_input allow_input,
 		agent_types.allow_output allow_output`).
 		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
+		Limit(limit).Offset(offset).
 		Scan(&ret)
 	return ret
 }

@@ -44,6 +44,7 @@ type AgentInfo struct {
 type AgentCore interface {
 	Run(context.Context, *Agent, *Event)
 	Stop()
+	IgnoreDuplicateEvent() bool
 }
 
 type Agent struct {

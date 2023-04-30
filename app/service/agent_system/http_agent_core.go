@@ -68,7 +68,7 @@ func (t *httpRequstsTemplate) render(bindings map[string]string) error {
 }
 
 type httpAgentCore struct {
-	Mode       string `json:"mode"`
+	OnUpdate       bool `json:"on_update"`
 	MergeEvent bool   `json:"merge_event"`
 
 	httpRequstsTemplate
@@ -184,6 +184,10 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 
 func (hac *httpAgentCore) Stop() {
 	//TODO
+}
+
+func (hac *httpAgentCore) IgnoreDuplicateEvent() bool {
+	return hac.OnUpdate
 }
 
 // func renderAllStringExceptTemplate(v interface{}, bindings map[string]interface{}) error {

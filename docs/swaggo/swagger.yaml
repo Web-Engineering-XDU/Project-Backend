@@ -1,0 +1,118 @@
+basePath: /
+definitions:
+  github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail:
+    properties:
+      allowInput:
+        type: boolean
+      allowOutput:
+        type: boolean
+      createAt:
+        type: string
+      description:
+        type: string
+      enable:
+        type: boolean
+      eventForever:
+        type: boolean
+      eventMaxAge:
+        $ref: '#/definitions/time.Duration'
+      id:
+        type: integer
+      name:
+        type: string
+      propJsonStr:
+        type: string
+      type_id:
+        type: integer
+      typeName:
+        type: string
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /agent:
+    get:
+      consumes:
+      - application/json
+      description: get agents
+      parameters:
+      - description: agent id. Don't include in request if you don't specify a id
+        in: query
+        name: id
+        type: integer
+      - description: number of agents in a page
+        in: query
+        name: number
+        required: true
+        type: integer
+      - description: page sequence number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail'
+            type: array
+      summary: List agents
+      tags:
+      - agents
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

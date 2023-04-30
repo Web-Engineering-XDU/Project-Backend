@@ -18,3 +18,7 @@ func (pac *printAgentCore) Run(ctx context.Context, agent *Agent, event *Event) 
 }
 
 func (*printAgentCore) Stop() {}
+
+func (*printAgentCore) IgnoreDuplicateEvent() bool{
+	return true
+}

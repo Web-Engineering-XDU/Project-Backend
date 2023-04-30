@@ -51,3 +51,7 @@ func (sac *scheduleAgentCore) Stop() {
 	}
 }
 
+func (sac *scheduleAgentCore) IgnoreDuplicateEvent() bool {
+	return true
+}
+

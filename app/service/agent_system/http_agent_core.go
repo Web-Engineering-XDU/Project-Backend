@@ -66,6 +66,7 @@ func (t *httpRequstsTemplate) render(bindings map[string]string) error {
 
 	return nil
 }
+
 type httpAgentCore struct {
 	Mode       string `json:"mode"`
 	MergeEvent bool   `json:"merge_event"`
@@ -77,7 +78,7 @@ type httpAgentCore struct {
 	Selectors []Selector `json:"selectors"`
 }
 
-func renderTemplate(template, bindings map[string]string) error{
+func renderTemplate(template, bindings map[string]string) error {
 	var out string
 	var err error
 	for k, v := range template {
@@ -103,8 +104,13 @@ func (a *Agent) loadHttpAgentCore() error {
 func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 	newEvent := &Event{}
 
+	agent.Mutex.RLock()
 	httpReqTemp := deepcopy.Copy(hac.httpRequstsTemplate).(httpRequstsTemplate)
 	temp := deepcopy.Copy(hac.Template).(map[string]string)
+	docType := hac.DocType
+	selectors := deepcopy.Copy(hac.Selectors).([]Selector)
+	mergeEvent := hac.MergeEvent
+	agent.Mutex.RUnlock()
 
 	err := httpReqTemp.render(event.Msg)
 	if err != nil {
@@ -135,13 +141,13 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 		//extract data from doc
 		resultMap := make([]map[string]string, 0, 20)
 		err = nil
-		switch hac.DocType {
+		switch docType {
 		case "html":
-			err = selectHtml(resp.Body(), hac.Selectors, &resultMap)
+			err = selectHtml(resp.Body(), selectors, &resultMap)
 		case "json":
-			err = selectJson(resp.Body(), hac.Selectors, &resultMap)
+			err = selectJson(resp.Body(), selectors, &resultMap)
 		case "text":
-			err = selectText(resp.Body(), hac.Selectors, &resultMap)
+			err = selectText(resp.Body(), selectors, &resultMap)
 		default:
 			newEvent.MetError = true
 			//TODO
@@ -161,7 +167,7 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 				//TODO
 			}
 			mergeMap(temp, v)
-			if hac.MergeEvent {
+			if mergeEvent {
 				mergeMap(temp, event.Msg)
 			}
 			agent.ac.eventHdl.PushEvent(&Event{

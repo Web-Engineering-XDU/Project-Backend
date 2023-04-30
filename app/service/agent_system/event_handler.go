@@ -13,7 +13,7 @@ import (
 
 type eventHandler struct {
 	eventChan chan *Event
-	agents    *agentCollection
+	agents    *AgentCollection
 }
 
 func NewEventHandler() eventHandler {
@@ -30,6 +30,12 @@ func (eventHdl *eventHandler) run() {
 			for {
 				var err error
 				event = <-eventHdl.eventChan
+
+				_, ok := eventHdl.agents.agentMap[event.SrcAgent.ID]
+				if !ok {
+					continue
+				}
+				
 				if event.SrcAgent.EventMaxAge != 0 {
 					jsonStr := ""
 					log := ""
@@ -43,7 +49,7 @@ func (eventHdl *eventHandler) run() {
 						}
 					}
 					err = models.InsertEvent(&models.Event{
-						SrcAgentId:  event.SrcAgent.Id,
+						SrcAgentId:  event.SrcAgent.ID,
 						JsonStr:     jsonStr,
 						ContentHash: HashMapString(event.Msg),
 						Error:       event.MetError,

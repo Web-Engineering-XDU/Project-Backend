@@ -1,11 +1,11 @@
 package agentsystem
 
 type AgentSystem struct {
-	agents   *agentCollection
+	Agents   *AgentCollection
 	eventHdl *eventHandler
 }
 
-func NewAgentSystem(agents *agentCollection, eventHdl *eventHandler) *AgentSystem {
+func NewAgentSystem(agents *AgentCollection, eventHdl *eventHandler) *AgentSystem {
 	agents.eventHdl = eventHdl
 	eventHdl.agents = agents
 	return &AgentSystem{agents, eventHdl}
@@ -13,9 +13,8 @@ func NewAgentSystem(agents *agentCollection, eventHdl *eventHandler) *AgentSyste
 
 func (as *AgentSystem) Run() {
 	as.eventHdl.run()
-	err := as.agents.init()
+	err := as.Agents.init()
 	if err != nil {
 		panic(err)
 	}
-	select{}
 }

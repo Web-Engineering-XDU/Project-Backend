@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Web-Engineering-XDU/Project-Backend/app/controller"
 	"github.com/Web-Engineering-XDU/Project-Backend/app/service"
 	"github.com/Web-Engineering-XDU/Project-Backend/config"
 	"github.com/ilyakaznacheev/cleanenv"
@@ -13,6 +14,6 @@ func main() {
 		panic(err)
 	}
 	
-	huggo := service.New(config)
-	huggo.Run()
+	huggo := service.New(config, controller.SetController)
+	huggo.Run(":8080")
 }

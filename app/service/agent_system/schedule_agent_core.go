@@ -28,6 +28,7 @@ func (a *Agent) loadSchduleAgentCore() error {
 func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 	go cronTimer.Run()
 	var err error
+	agent.Mutex.RLock()
 	sac.cronEntryID, err = cronTimer.AddFunc(sac.CronSpec, func() {
 		agent.ac.eventHdl.PushEvent(&Event{
 			SrcAgent:   agent,
@@ -37,6 +38,7 @@ func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Even
 			ToBeDelivered: true,
 		})
 	})
+	agent.Mutex.RUnlock()
 	if err != nil {
 		log.Panicln(err)
 		//TODO

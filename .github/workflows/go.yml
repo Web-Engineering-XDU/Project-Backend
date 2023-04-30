@@ -1,0 +1,48 @@
+name: devops
+
+on:
+  push:
+    branches: [ "main" ] # master 分支提交时触发
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go #配置GO 环境
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.20
+
+    - name: Build # 编译项目
+      run: go build -o ./.github/bin/huggo
+
+    - name: 拉取编译结果到腾讯云
+      uses: easingthemes/ssh-deploy@main
+      env:
+          #私钥
+          SSH_PRIVATE_KEY: ${{ secrets.AVERY_PRIVATE_KEY }}
+          #SCp参数
+          ARGS: "-rltgoDzvO --delete"
+          #源目录
+          SOURCE: "./.github/bin/huggo"
+          #服务器Ip:换成你的服务器iP
+          REMOTE_HOST:  ${{ secrets.AVERY_HOST }}
+          #用户
+          REMOTE_USER: "ubuntu"
+          #目标地址
+          TARGET: "/home/ubuntu/work/bin"
+          
+    - name: Run
+      uses: appleboy/ssh-action@master
+      with:
+        host:  ${{ secrets.AVERY_HOST }}
+        username: "ubuntu"
+        password: ${{ secrets.AVERY_PWD }}
+        script: |
+          cd /home/ubuntu/work/bin
+          fuser -k 8080/tcp
+          screen -dmS huggo ./huggo
+          exit

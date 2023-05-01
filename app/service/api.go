@@ -67,17 +67,19 @@ func GetAgentList(c *gin.Context) {
 func NewAgent(c *gin.Context) {
     params := &models.Agent{}
     c.ShouldBind(params)
-    err := models.InsertAgent(params)
-    if err != nil {
-        c.JSON(http.StatusOK, makeRespBody(400, err.Error(), makeCountContent(0, nil)))
-        return
-    }
+
     acInt, ok := c.Get("agents")
     if !ok {
         panic("gin need a agent collection to work")
     }
     ac := acInt.(*agentsystem.AgentCollection)
-    ac.AddAgent(*params)
+
+    err := ac.AddAgent(*params)
+
+    if err != nil {
+        c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
+        return
+    }
 
     c.JSON(http.StatusOK, makeRespBody(200, "ok", map[string]int{"id": params.ID}))
 }

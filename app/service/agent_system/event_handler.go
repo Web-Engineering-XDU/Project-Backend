@@ -70,9 +70,11 @@ func (eventHdl *eventHandler) run() {
 					continue
 				}
 				fmt.Println(event)
+				event.SrcAgent.Mutex.RLock()
 				for _, v := range event.SrcAgent.DstAgentId {
 					go eventHdl.agents.NextAgentDo(v, event)
 				}
+				event.SrcAgent.Mutex.RUnlock()
 			}
 		}()
 	}

@@ -1,17 +1,28 @@
 package agentsystem
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
 
-func (ac *AgentCollection) AddAgent(a models.Agent) {
+func (ac *AgentCollection) AddAgent(a models.Agent) error {
 	_, ok := ac.agentMap[a.ID]
 	if ok {
 		//Already running
-		return
+		return errors.New("agent with this id already exists")
 	}
+	_, ok = ac.agentTypeMap[a.TypeId]
+	if !ok {
+		return errors.New("agent type with this id does not exist")
+	}
+
+	err := models.InsertAgent(&a)
+	if err != nil {
+		return err
+	}
+
 	agent := &Agent{
 		AgentInfo: AgentInfo{
 			ID:               a.ID,
@@ -27,7 +38,7 @@ func (ac *AgentCollection) AddAgent(a models.Agent) {
 		Ctx:   ac.ctx,
 		Mutex: sync.RWMutex{},
 	}
-	err := agent.loadCore()
+	err = agent.loadCore()
 	if err != nil {
 		//TODO
 		panic(err)
@@ -36,6 +47,7 @@ func (ac *AgentCollection) AddAgent(a models.Agent) {
 	if agent.Enable && agent.TypeId == 1 {
 		go agent.Run(agent.Ctx, agent, nil)
 	}
+	return nil
 }
 
 func (ac *AgentCollection) DeleteAgent(id int) bool {
@@ -78,8 +90,8 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) bool {
 			go agent.Run(agent.Ctx, agent, nil)
 		}
 	} else {
-		if agent.Enable != a.Enable{
-			if a.Enable{
+		if agent.Enable != a.Enable {
+			if a.Enable {
 				go agent.Run(agent.Ctx, agent, nil)
 			} else {
 				agent.Stop()
@@ -94,7 +106,22 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) bool {
 	return true
 }
 
-func UpdateRelation() {}
+func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error {
+	agent, ok := ac.agentMap[agentId]
+	if !ok {
+		return errors.New("no agent with this id")
+	}
+	err := models.SetAgentRelation(agentId, srcs, dsts)
+	if err != nil {
+		return err
+	}
+
+	agent.Mutex.Lock()
+	agent.SrcAgentId = srcs
+	agent.DstAgentId = dsts
+	agent.Mutex.Unlock()
+	return nil
+}
 
 func DryRunAgent() {}
 

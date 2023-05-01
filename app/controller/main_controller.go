@@ -23,6 +23,8 @@ func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Eng
 
 	router.GET("/event", service.GetEventList)
 
+	router.POST("/agent-relation", service.SetAgentRelation)
+
 	//TODO
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

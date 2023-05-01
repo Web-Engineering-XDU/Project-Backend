@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  app_service.setAgentRelationParams:
+    properties:
+      agentId:
+        type: integer
+      dsts:
+        items:
+          type: integer
+        type: array
+      srcs:
+        items:
+          type: integer
+        type: array
+    type: object
   github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail:
     properties:
       allowInput:
@@ -139,6 +152,7 @@ definitions:
     - 1000000
     - 1000000000
     - 60000000000
+    - 3600000000000
     type: integer
     x-enum-varnames:
     - Nanosecond
@@ -146,6 +160,7 @@ definitions:
     - Millisecond
     - Second
     - Minute
+    - Hour
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -308,6 +323,28 @@ paths:
       summary: New agents
       tags:
       - agents
+  /agent-relation:
+    post:
+      consumes:
+      - application/json
+      description: set agent relations
+      parameters:
+      - description: all relations of an agent
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/app_service.setAgentRelationParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.GetEventListResponse'
+      summary: Set Agent Relations
+      tags:
+      - relations
   /event:
     get:
       consumes:

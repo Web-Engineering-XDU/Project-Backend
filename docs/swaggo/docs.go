@@ -237,6 +237,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/agent-relation": {
+            "post": {
+                "description": "set agent relations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "relations"
+                ],
+                "summary": "Set Agent Relations",
+                "parameters": [
+                    {
+                        "description": "all relations of an agent",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app_service.setAgentRelationParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.GetEventListResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/event": {
             "get": {
                 "description": "get events",
@@ -284,6 +318,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "app_service.setAgentRelationParams": {
+            "type": "object",
+            "properties": {
+                "agentId": {
+                    "type": "integer"
+                },
+                "dsts": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "srcs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail": {
             "type": "object",
             "properties": {
@@ -482,14 +536,16 @@ const docTemplate = `{
                 1000,
                 1000000,
                 1000000000,
-                60000000000
+                60000000000,
+                3600000000000
             ],
             "x-enum-varnames": [
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",
                 "Second",
-                "Minute"
+                "Minute",
+                "Hour"
             ]
         }
     },

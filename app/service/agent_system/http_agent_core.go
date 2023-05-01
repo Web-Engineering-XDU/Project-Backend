@@ -15,9 +15,9 @@ import (
 )
 
 type Selector struct {
-	VarName         string `json:"var_name"`
-	SelectorType    string `json:"selector_type"`
-	SelectorContent string `json:"selector_content"`
+	VarName         string `json:"varName"`
+	SelectorType    string `json:"selectorType"`
+	SelectorContent string `json:"selectorContent"`
 }
 
 type httpRequstsTemplate struct {
@@ -68,13 +68,13 @@ func (t *httpRequstsTemplate) render(bindings map[string]string) error {
 }
 
 type httpAgentCore struct {
-	OnUpdate       bool `json:"on_update"`
-	MergeEvent bool   `json:"merge_event"`
+	OnUpdate       bool `json:"onUpdate"`
+	MergeEvent bool   `json:"mergeEvent"`
 
 	httpRequstsTemplate
 	Template map[string]string `json:"template"`
 
-	DocType   string     `json:"doc_type"`
+	DocType   string     `json:"docType"`
 	Selectors []Selector `json:"selectors"`
 }
 

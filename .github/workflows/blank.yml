@@ -22,6 +22,7 @@ jobs:
       - name: Update submodule and commit
         run: |
           cd backend
+          export GIT_TERMINAL_PROMPT=1
           git checkout main
           git pull
           cd ..

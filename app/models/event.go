@@ -7,14 +7,16 @@ import (
 )
 
 type Event struct {
-	ID          int `gorm:"primaryKey"`
-	SrcAgentId  int	`gorm:"not null"`
-	JsonStr     string	`gorm:"type:TEXT;not null"`
-	ContentHash string	`gorm:"type:CHAR(16);not null"`
-	Error       bool	`gorm:"not null"`
-	Log         string	`gorm:"type:TEXT;not null"`
+	ID          int		`gorm:"primaryKey"              form:"id"`
+	SrcAgentId  int		`gorm:"not null"                form:"srcAgentId"`
+	JsonStr     string	`gorm:"type:TEXT;not null"      form:"jsonStr"`
+	ContentHash string	`gorm:"type:CHAR(16);not null"  form:"contentHash"`
+	Error       bool	`gorm:"not null"                form:"error"`
+	Log         string	`gorm:"type:TEXT;not null"      form:"log"`
+
 	CreateAt    time.Time	`gorm:"not null"`
 	DeleteAt    time.Time	`gorm:"not null"`
+
 	Deleted     soft_delete.DeletedAt `gorm:"softDelete:flag;type:TINYINT;not null"`
 }
 

@@ -9,24 +9,25 @@ import (
 const agentTableName = "agents"
 
 type AgentBasic struct {
-	ID     int  `gorm:"primaryKey" form:"id" json:"id"`
-	Enable bool `gorm:"not null" form:"enable" json:"enable"`
-	TypeId int  `gorm:"not null" form:"type_id" json:"type_id"`
+	ID     int  `gorm:"primaryKey"  form:"id"`
+	Enable bool `gorm:"not null"    form:"enable"`
+	TypeId int  `gorm:"not null"    form:"typeId"`
 }
 
 type AgentExtra struct {
-	Name        string `gorm:"type:VARCHAR(128);not null" form:"name" json:"name"`
-	Description string `gorm:"type:TEXT;not nub ll" form:"description" json:"description"`
-	CreateAt    time.Time `json:"create_at"`
+	Name        string    `gorm:"type:VARCHAR(128);not null"  form:"name"`
+	Description string    `gorm:"type:TEXT;not null"          form:"description"`
+	CreateAt    time.Time `gorm:"not null"`
 }
 
 type Agent struct {
 	AgentBasic
 	AgentExtra
 
-	EventForever bool          `form:"event_forever" json:"event_forever"`
-	EventMaxAge  time.Duration `form:"event_max_age" json:"event_max_age"`
-	PropJsonStr  string        `gorm:"type:TEXT;not null" form:"prop_json_str" json:"prop_json_str"`
+	EventForever bool           `gorm:"not null"  form:"eventForever"`
+	EventMaxAge  time.Duration  `gorm:"not null"  form:"eventMaxAge"`
+
+	PropJsonStr  string         `gorm:"type:TEXT;not null"`
 
 	Deleted soft_delete.DeletedAt `gorm:"softDelete:flag;type:TINYINT;not null"`
 }
@@ -37,31 +38,31 @@ func (*Agent) TableName() string {
 
 func (u *Agent) ToUpdateMap() map[string]interface{} {
 	return map[string]interface{}{
-		"enable":        u.Enable,
-		"name":          u.Name,
-		"description":   u.Description,
-		"event_forever": u.EventForever,
-		"event_max_age": u.EventMaxAge,
-		"prop_json_str": u.PropJsonStr,
+		"enable":       u.Enable,
+		"name":         u.Name,
+		"description":  u.Description,
+		"eventForever": u.EventForever,
+		"eventMaxAge":  u.EventMaxAge,
+		"propJsonStr":  u.PropJsonStr,
 	}
 }
 
 type AgentRuntime struct {
 	AgentBasic
 
-	EventForever bool          `json:"event_forever"`
-	EventMaxAge  time.Duration `json:"event_max_age"`
-	PropJsonStr  string        `json:"prop_json_str"`
+	EventForever bool
+	EventMaxAge  time.Duration
+	PropJsonStr  string
 
-	AllowInput  bool `json:"allow_input"`
-	AllowOutput bool `json:"allow_output"`
+	AllowInput  bool
+	AllowOutput bool
 }
 
 type AgentDetail struct {
 	AgentRuntime
 
 	AgentExtra
-	TypeName string `json:"type_name"`
+	TypeName string
 }
 
 func InsertAgent(agent *Agent) error {

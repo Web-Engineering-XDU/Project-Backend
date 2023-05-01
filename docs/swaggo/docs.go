@@ -287,13 +287,13 @@ const docTemplate = `{
         "github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail": {
             "type": "object",
             "properties": {
-                "allow_input": {
+                "allowInput": {
                     "type": "boolean"
                 },
-                "allow_output": {
+                "allowOutput": {
                     "type": "boolean"
                 },
-                "create_at": {
+                "createAt": {
                     "type": "string"
                 },
                 "description": {
@@ -302,10 +302,10 @@ const docTemplate = `{
                 "enable": {
                     "type": "boolean"
                 },
-                "event_forever": {
+                "eventForever": {
                     "type": "boolean"
                 },
-                "event_max_age": {
+                "eventMaxAge": {
                     "$ref": "#/definitions/time.Duration"
                 },
                 "id": {
@@ -314,13 +314,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "prop_json_str": {
+                "propJsonStr": {
                     "type": "string"
                 },
-                "type_id": {
+                "typeId": {
                     "type": "integer"
                 },
-                "type_name": {
+                "typeName": {
                     "type": "string"
                 }
             }
@@ -456,11 +456,23 @@ const docTemplate = `{
                 1000000,
                 1000000000,
                 60000000000,
+                3600000000000,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
                 3600000000000
             ],
             "x-enum-varnames": [
                 "minDuration",
                 "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour",
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",

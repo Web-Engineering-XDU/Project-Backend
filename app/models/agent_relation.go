@@ -45,11 +45,11 @@ func SetAgentRelation(id int, srcs, dsts []int) error {
 		}
 		relations := make([]*AgentRelation, len(srcs)+len(dsts))
 		i := 0
-		for src := range srcs {
+		for _, src := range srcs {
 			relations[i] = &AgentRelation{SrcAgentId: src, DstAgentId: id}
 			i++
 		}
-		for dst := range dsts {
+		for _, dst := range dsts {
 			relations[i] = &AgentRelation{SrcAgentId: id, DstAgentId: dst}
 		}
         err = InsertAgentRelation(relations)

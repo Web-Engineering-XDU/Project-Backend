@@ -26,6 +26,12 @@ type NewAgentResponse struct {
 	Result NewAgentResponseResult `json:"result"`
 }
 
-type DeleteAgentResponse struct {
+type GetEventListResponseResult struct {
+	Content []models.Event `json:"content"`
+	Count   int            `json:"count"`
+}
+
+type GetEventListResponse struct {
 	StateInfo
+	Result GetEventListResponseResult `json:"result"`
 }

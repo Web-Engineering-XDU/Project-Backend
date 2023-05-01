@@ -10,13 +10,13 @@ const agentTableName = "agents"
 
 type AgentBasic struct {
 	ID     int  `gorm:"primaryKey" form:"id" json:"id"`
-	Enable bool `form:"enable" json:"enable"`
-	TypeId int  `form:"type_id" json:"type_id"`
+	Enable bool `gorm:"not null" form:"enable" json:"enable"`
+	TypeId int  `gorm:"not null" form:"type_id" json:"type_id"`
 }
 
 type AgentExtra struct {
-	Name        string `form:"name" json:"name"`
-	Description string `form:"description" json:"description"`
+	Name        string `gorm:"type:VARCHAR(128);not null" form:"name" json:"name"`
+	Description string `gorm:"type:TEXT;not nub ll" form:"description" json:"description"`
 	CreateAt    time.Time `json:"create_at"`
 }
 
@@ -26,9 +26,9 @@ type Agent struct {
 
 	EventForever bool          `form:"event_forever" json:"event_forever"`
 	EventMaxAge  time.Duration `form:"event_max_age" json:"event_max_age"`
-	PropJsonStr  string        `form:"prop_json_str" json:"prop_json_str"`
+	PropJsonStr  string        `gorm:"type:TEXT;not null" form:"prop_json_str" json:"prop_json_str"`
 
-	Deleted soft_delete.DeletedAt `gorm:"softDelete:flag"`
+	Deleted soft_delete.DeletedAt `gorm:"softDelete:flag;type:TINYINT;not null"`
 }
 
 func (*Agent) TableName() string {

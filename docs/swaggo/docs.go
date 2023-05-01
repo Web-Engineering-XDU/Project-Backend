@@ -141,6 +141,71 @@ const docTemplate = `{
                     }
                 }
             },
+            "post": {
+                "description": "update agents",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Update agents",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "enable the agent",
+                        "name": "enable",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of the agent",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "whether keep the event forever",
+                        "name": "event_forever",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "event max age in timestamp",
+                        "name": "event_max_age",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "props used by specific agent type in json",
+                        "name": "prop_json_str",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.StateInfo"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "delete agents",
                 "consumes": [
@@ -166,7 +231,52 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/swaggo.DeleteAgentResponse"
+                            "$ref": "#/definitions/swaggo.StateInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/event": {
+            "get": {
+                "description": "get events",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "List Events",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "src agent id. Don't include in request if you don't specify it",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of events in a page",
+                        "name": "number",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page sequence number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.GetEventListResponse"
                         }
                     }
                 }
@@ -215,14 +325,35 @@ const docTemplate = `{
                 }
             }
         },
-        "swaggo.DeleteAgentResponse": {
+        "github_com_Web-Engineering-XDU_Project-Backend_app_models.Event": {
             "type": "object",
             "properties": {
-                "code": {
+                "contentHash": {
+                    "type": "string"
+                },
+                "createAt": {
+                    "type": "string"
+                },
+                "deleteAt": {
+                    "type": "string"
+                },
+                "deleted": {
                     "type": "integer"
                 },
-                "msg": {
+                "error": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "jsonStr": {
                     "type": "string"
+                },
+                "log": {
+                    "type": "string"
+                },
+                "srcAgentId": {
+                    "type": "integer"
                 }
             }
         },
@@ -254,6 +385,34 @@ const docTemplate = `{
                 }
             }
         },
+        "swaggo.GetEventListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/swaggo.GetEventListResponseResult"
+                }
+            }
+        },
+        "swaggo.GetEventListResponseResult": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.Event"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                }
+            }
+        },
         "swaggo.NewAgentResponse": {
             "type": "object",
             "properties": {
@@ -276,6 +435,17 @@ const docTemplate = `{
                 }
             }
         },
+        "swaggo.StateInfo": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
         "time.Duration": {
             "type": "integer",
             "enum": [
@@ -283,26 +453,14 @@ const docTemplate = `{
                 1000,
                 1000000,
                 1000000000,
-                60000000000,
-                1,
-                1000,
-                1000000,
-                1000000000,
-                60000000000,
-                3600000000000
+                60000000000
             ],
             "x-enum-varnames": [
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",
                 "Second",
-                "Minute",
-                "Nanosecond",
-                "Microsecond",
-                "Millisecond",
-                "Second",
-                "Minute",
-                "Hour"
+                "Minute"
             ]
         }
     },

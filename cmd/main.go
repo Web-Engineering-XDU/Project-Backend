@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/Web-Engineering-XDU/Project-Backend/app/controller"
 	"github.com/Web-Engineering-XDU/Project-Backend/app/service"
 	"github.com/Web-Engineering-XDU/Project-Backend/config"
@@ -33,8 +36,13 @@ type Config struct {
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+	ex, err := os.Executable()
+    if err != nil {
+        panic(err)
+    }
+
 	var config config.Config
-	err:= cleanenv.ReadConfig("./config.yml", &config)
+	err = cleanenv.ReadConfig(filepath.Dir(ex) + "/config.yml", &config)
 	if err != nil {
 		panic(err)
 	}

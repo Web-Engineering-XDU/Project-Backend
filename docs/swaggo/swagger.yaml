@@ -27,12 +27,26 @@ definitions:
       type_name:
         type: string
     type: object
-  swaggo.DeleteAgentResponse:
+  github_com_Web-Engineering-XDU_Project-Backend_app_models.Event:
     properties:
-      code:
-        type: integer
-      msg:
+      contentHash:
         type: string
+      createAt:
+        type: string
+      deleteAt:
+        type: string
+      deleted:
+        type: integer
+      error:
+        type: boolean
+      id:
+        type: integer
+      jsonStr:
+        type: string
+      log:
+        type: string
+      srcAgentId:
+        type: integer
     type: object
   swaggo.GetAgentListResponse:
     properties:
@@ -52,6 +66,24 @@ definitions:
       count:
         type: integer
     type: object
+  swaggo.GetEventListResponse:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      result:
+        $ref: '#/definitions/swaggo.GetEventListResponseResult'
+    type: object
+  swaggo.GetEventListResponseResult:
+    properties:
+      content:
+        items:
+          $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.Event'
+        type: array
+      count:
+        type: integer
+    type: object
   swaggo.NewAgentResponse:
     properties:
       code:
@@ -66,6 +98,13 @@ definitions:
       id:
         type: integer
     type: object
+  swaggo.StateInfo:
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+    type: object
   time.Duration:
     enum:
     - 1
@@ -73,12 +112,6 @@ definitions:
     - 1000000
     - 1000000000
     - 60000000000
-    - 1
-    - 1000
-    - 1000000
-    - 1000000000
-    - 60000000000
-    - 3600000000000
     type: integer
     x-enum-varnames:
     - Nanosecond
@@ -86,12 +119,6 @@ definitions:
     - Millisecond
     - Second
     - Minute
-    - Nanosecond
-    - Microsecond
-    - Millisecond
-    - Second
-    - Minute
-    - Hour
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -126,7 +153,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/swaggo.DeleteAgentResponse'
+            $ref: '#/definitions/swaggo.StateInfo'
       summary: Delete agents
       tags:
       - agents
@@ -157,6 +184,51 @@ paths:
           schema:
             $ref: '#/definitions/swaggo.GetAgentListResponse'
       summary: List agents
+      tags:
+      - agents
+    post:
+      consumes:
+      - application/json
+      description: update agents
+      parameters:
+      - description: enable the agent
+        in: formData
+        name: enable
+        required: true
+        type: boolean
+      - description: name of the agent
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: whether keep the event forever
+        in: formData
+        name: event_forever
+        required: true
+        type: boolean
+      - description: event max age in timestamp
+        in: formData
+        name: event_max_age
+        required: true
+        type: integer
+      - description: props used by specific agent type in json
+        in: formData
+        name: prop_json_str
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.StateInfo'
+      summary: Update agents
       tags:
       - agents
     put:
@@ -209,6 +281,36 @@ paths:
       summary: New agents
       tags:
       - agents
+  /event:
+    get:
+      consumes:
+      - application/json
+      description: get events
+      parameters:
+      - description: src agent id. Don't include in request if you don't specify it
+        in: query
+        name: id
+        type: integer
+      - description: number of events in a page
+        in: query
+        name: number
+        required: true
+        type: integer
+      - description: page sequence number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.GetEventListResponse'
+      summary: List Events
+      tags:
+      - events
 securityDefinitions:
   BasicAuth:
     type: basic

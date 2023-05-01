@@ -1,6 +1,7 @@
 package agentsystem
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
@@ -94,7 +95,22 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) bool {
 	return true
 }
 
-func UpdateRelation() {}
+func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error{
+	agent, ok := ac.agentMap[agentId]
+	if !ok {
+		return errors.New("No agent with this id")
+	}
+	err := models.SetAgentRelation(agentId, srcs, dsts)
+	if err != nil {
+		return err
+	}
+
+	agent.Mutex.Lock()
+	agent.SrcAgentId = srcs
+	agent.DstAgentId = dsts
+	agent.Mutex.Unlock()
+	return nil
+}
 
 func DryRunAgent() {}
 

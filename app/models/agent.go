@@ -9,16 +9,16 @@ import (
 const agentTableName = "agents"
 
 type AgentBasic struct {
-	ID     int  `gorm:"primaryKey"  form:"id"       json:"id"`
-	Enable bool `gorm:"not null"    form:"enable"   json:"enable"`
-	TypeId int  `gorm:"not null"    form:"typeId"   json:"typeId"`
+	ID     int  `gorm:"primaryKey"  form:"id"       json:"id"       example:"8848"`
+	Enable bool `gorm:"not null"    form:"enable"   json:"enable"   example:"true"`
+	TypeId int  `gorm:"not null"    form:"typeId"   json:"typeId"   example:"1"`
 }
 
 type AgentExtra struct {
-	Name        string `gorm:"type:VARCHAR(128);not null"  form:"name"         json:"name"`
-	Description string `gorm:"type:TEXT;not null"          form:"description"  json:"description"`
+	Name        string `gorm:"type:VARCHAR(128);not null"  form:"name"         json:"name"          example:"5s timer"`
+	Description string `gorm:"type:TEXT;not null"          form:"description"  json:"description"   example:"I'm a schedule agent"`
 
-	CreateAt time.Time `gorm:"not null"  json:"createAt"`
+	CreateAt time.Time `gorm:"not null"  json:"createAt"    example:"2023-04-11T05:07:53+08:00"`
 }
 
 type Agent struct {
@@ -26,7 +26,7 @@ type Agent struct {
 	AgentExtra
 
 	EventForever bool          `gorm:"not null"  form:"eventForever"   json:"eventForever"`
-	EventMaxAge  time.Duration `gorm:"not null"  form:"eventMaxAge"    json:"eventMaxAge"`
+	EventMaxAge  time.Duration `gorm:"not null"  form:"eventMaxAge"    json:"eventMaxAge"   example:"3600000000000"`
 
 	PropJsonStr string `gorm:"type:TEXT;not null"  form:"propJsonStr"  json:"propJsonStr"`
 
@@ -51,19 +51,19 @@ func (u *Agent) ToUpdateMap() map[string]interface{} {
 type AgentRuntime struct {
 	AgentBasic
 
-	EventForever bool           `json:"eventForever"`
-	EventMaxAge  time.Duration  `json:"eventMaxAge"`
-	PropJsonStr  string         `json:"propJsonStr"`
+	EventForever bool           `json:"eventForever"    example:"false"`
+	EventMaxAge  time.Duration  `json:"eventMaxAge"     example:"0"`
+	PropJsonStr  string         `json:"propJsonStr"     example:"{\"cron\":\"*/5 * * * * *\"}"`
 
-	AllowInput  bool            `json:"allowInput"`
-	AllowOutput bool            `json:"allowOutput"`
+	AllowInput  bool            `json:"allowInput"      example:"false"`
+	AllowOutput bool            `json:"allowOutput"     example:"true"`
 }
 
 type AgentDetail struct {
 	AgentRuntime
 
 	AgentExtra
-	TypeName string `json:"typeName"`
+	TypeName string `json:"typeName"    example:"Schedule Agent"`
 }
 
 func InsertAgent(agent *Agent) error {

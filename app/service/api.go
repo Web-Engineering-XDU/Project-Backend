@@ -61,7 +61,7 @@ func GetAgentList(c *gin.Context) {
 // @Param		 name			formData	string		true	"name of the agent"
 // @Param		 description	formData	string		true	"description"
 // @Param		 event_forever	formData	bool		true	"whether keep the event forever"
-// @Param		 event_max_age	formData	int			true	"event max age in timestamp"
+// @Param		 event_max_age	formData	int			true	"event max age in nanosecond count"
 // @Param		 prop_json_str	formData	string		true	"props used by specific agent type in json"
 // @Success      200  {object}   swaggo.NewAgentResponse
 // @Router       /agent [put]

@@ -112,7 +112,7 @@
                     },
                     {
                         "type": "integer",
-                        "description": "event max age in timestamp",
+                        "description": "event max age in nanosecond count",
                         "name": "event_max_age",
                         "in": "formData",
                         "required": true
@@ -281,40 +281,56 @@
             "type": "object",
             "properties": {
                 "allowInput": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "allowOutput": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "createAt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2023-04-11T05:07:53+08:00"
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "I'm a schedule agent"
                 },
                 "enable": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "eventForever": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "eventMaxAge": {
-                    "$ref": "#/definitions/time.Duration"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/time.Duration"
+                        }
+                    ],
+                    "example": 0
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 8848
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "5s timer"
                 },
                 "propJsonStr": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "{\"cron\":\"*/5 * * * * *\"}"
                 },
                 "typeId": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "typeName": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Schedule Agent"
                 }
             }
         },
@@ -322,31 +338,36 @@
             "type": "object",
             "properties": {
                 "contentHash": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "47ed5d26b86a7519"
                 },
                 "createAt": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2023-04-11T05:07:53+08:00"
                 },
                 "deleteAt": {
-                    "type": "string"
-                },
-                "deleted": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "2023-04-11T06:07:53+08:00"
                 },
                 "error": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 15
                 },
                 "jsonStr": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "{\"ip_without_dot\":\"11125117081\",\"ip\":\"111.251.170.81\",\"latitude\":\"25.0504\"}"
                 },
                 "log": {
-                    "type": "string"
+                    "type": "string",
+                    "example": ""
                 },
                 "srcAgentId": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1145
                 }
             }
         },
@@ -354,10 +375,12 @@
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "msg": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ok"
                 },
                 "result": {
                     "$ref": "#/definitions/swaggo.GetAgentListResponseResult"
@@ -382,10 +405,12 @@
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "msg": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ok"
                 },
                 "result": {
                     "$ref": "#/definitions/swaggo.GetEventListResponseResult"
@@ -410,10 +435,12 @@
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "msg": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ok"
                 },
                 "result": {
                     "$ref": "#/definitions/swaggo.NewAgentResponseResult"
@@ -432,46 +459,30 @@
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "msg": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ok"
                 }
             }
         },
         "time.Duration": {
             "type": "integer",
             "enum": [
-                -9223372036854775808,
-                9223372036854775807,
                 1,
                 1000,
                 1000000,
                 1000000000,
-                60000000000,
-                3600000000000,
-                1,
-                1000,
-                1000000,
-                1000000000,
-                60000000000,
-                3600000000000
+                60000000000
             ],
             "x-enum-varnames": [
-                "minDuration",
-                "maxDuration",
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",
                 "Second",
-                "Minute",
-                "Hour",
-                "Nanosecond",
-                "Microsecond",
-                "Millisecond",
-                "Second",
-                "Minute",
-                "Hour"
+                "Minute"
             ]
         }
     },

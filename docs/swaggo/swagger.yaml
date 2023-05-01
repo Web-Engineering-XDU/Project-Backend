@@ -3,56 +3,77 @@ definitions:
   github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail:
     properties:
       allowInput:
+        example: false
         type: boolean
       allowOutput:
+        example: true
         type: boolean
       createAt:
+        example: "2023-04-11T05:07:53+08:00"
         type: string
       description:
+        example: I'm a schedule agent
         type: string
       enable:
+        example: true
         type: boolean
       eventForever:
+        example: false
         type: boolean
       eventMaxAge:
-        $ref: '#/definitions/time.Duration'
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        example: 0
       id:
+        example: 8848
         type: integer
       name:
+        example: 5s timer
         type: string
       propJsonStr:
+        example: '{"cron":"*/5 * * * * *"}'
         type: string
       typeId:
+        example: 1
         type: integer
       typeName:
+        example: Schedule Agent
         type: string
     type: object
   github_com_Web-Engineering-XDU_Project-Backend_app_models.Event:
     properties:
       contentHash:
+        example: 47ed5d26b86a7519
         type: string
       createAt:
+        example: "2023-04-11T05:07:53+08:00"
         type: string
       deleteAt:
+        example: "2023-04-11T06:07:53+08:00"
         type: string
-      deleted:
-        type: integer
       error:
+        example: false
         type: boolean
       id:
+        example: 15
         type: integer
       jsonStr:
+        example: '{"ip_without_dot":"11125117081","ip":"111.251.170.81","latitude":"25.0504"}'
         type: string
       log:
+        example: ""
         type: string
       srcAgentId:
+        example: 1145
         type: integer
     type: object
   swaggo.GetAgentListResponse:
     properties:
       code:
+        example: 200
         type: integer
       msg:
+        example: ok
         type: string
       result:
         $ref: '#/definitions/swaggo.GetAgentListResponseResult'
@@ -69,8 +90,10 @@ definitions:
   swaggo.GetEventListResponse:
     properties:
       code:
+        example: 200
         type: integer
       msg:
+        example: ok
         type: string
       result:
         $ref: '#/definitions/swaggo.GetEventListResponseResult'
@@ -87,8 +110,10 @@ definitions:
   swaggo.NewAgentResponse:
     properties:
       code:
+        example: 200
         type: integer
       msg:
+        example: ok
         type: string
       result:
         $ref: '#/definitions/swaggo.NewAgentResponseResult'
@@ -101,42 +126,26 @@ definitions:
   swaggo.StateInfo:
     properties:
       code:
+        example: 200
         type: integer
       msg:
+        example: ok
         type: string
     type: object
   time.Duration:
     enum:
-    - -9223372036854775808
-    - 9223372036854775807
     - 1
     - 1000
     - 1000000
     - 1000000000
     - 60000000000
-    - 3600000000000
-    - 1
-    - 1000
-    - 1000000
-    - 1000000000
-    - 60000000000
-    - 3600000000000
     type: integer
     x-enum-varnames:
-    - minDuration
-    - maxDuration
     - Nanosecond
     - Microsecond
     - Millisecond
     - Second
     - Minute
-    - Hour
-    - Nanosecond
-    - Microsecond
-    - Millisecond
-    - Second
-    - Minute
-    - Hour
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -279,7 +288,7 @@ paths:
         name: event_forever
         required: true
         type: boolean
-      - description: event max age in timestamp
+      - description: event max age in nanosecond count
         in: formData
         name: event_max_age
         required: true

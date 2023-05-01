@@ -51,12 +51,12 @@ func (u *Agent) ToUpdateMap() map[string]interface{} {
 type AgentRuntime struct {
 	AgentBasic
 
-	EventForever bool
-	EventMaxAge  time.Duration
-	PropJsonStr  string
+	EventForever bool           `json:"eventForever"`
+	EventMaxAge  time.Duration  `json:"eventMaxAge"`
+	PropJsonStr  string         `json:"propJsonStr"`
 
-	AllowInput  bool
-	AllowOutput bool
+	AllowInput  bool            `json:"allowInput"`
+	AllowOutput bool            `json:"allowOutput"`
 }
 
 type AgentDetail struct {

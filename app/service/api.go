@@ -194,7 +194,7 @@ type setAgentRelationParams struct {
 // @Tags         relations
 // @Accept       json
 // @Produce      json
-// @Param        agentId    request    body    true    "src agent id. Don't include in request if you don't specify it"
+// @Param        request    body    true    ""
 // @Success      200  {object}   swaggo.GetEventListResponse
 // @Router       /agent-relation [post]
 func SetAgentRelation(c *gin.Context) {

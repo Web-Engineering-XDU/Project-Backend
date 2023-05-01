@@ -30,4 +30,4 @@ jobs:
           git config --global user.name "Guchen"
           git add .
           git commit -m "Update Backend"
-          git push
+          GIT_TERMINAL_PROMPT=1 git push

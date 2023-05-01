@@ -89,7 +89,7 @@ func NewAgent(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        id		query	int    true    "agent id"  
-// @Success      200  {object}   swaggo.DeleteAgentResponse
+// @Success      200  {object}   swaggo.StateInfo
 // @Router       /agent [delete]
 func DeleteAgent(c *gin.Context) {
 	IdStr, ok := c.GetQuery("id")
@@ -119,6 +119,19 @@ func DeleteAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(400, "agent with this id doesn't exist", nil))
 }
 
+// @Summary      Update agents
+// @Description  update agents
+// @Tags         agents
+// @Accept       json
+// @Produce      json
+// @Param        enable			formData	bool		true	"enable the agent"
+// @Param		 name			formData	string		true	"name of the agent"
+// @Param		 description	formData	string		true	"description"
+// @Param		 event_forever	formData	bool		true	"whether keep the event forever"
+// @Param		 event_max_age	formData	int			true	"event max age in timestamp"
+// @Param		 prop_json_str	formData	string		true	"props used by specific agent type in json"
+// @Success      200  {object}   swaggo.StateInfo
+// @Router       /agent [post]
 func UpdateAgent(c *gin.Context) {
 	params := &models.Agent{}
 	c.ShouldBind(params)
@@ -135,6 +148,16 @@ func UpdateAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))
 }
 
+// @Summary      List Events
+// @Description  get events
+// @Tags         events
+// @Accept       json
+// @Produce      json
+// @Param        id			query	int    false    "src agent id. Don't include in request if you don't specify it"  
+// @Param        number		query	int    true		"number of events in a page"
+// @Param        page   	query	int    true		"page sequence number"
+// @Success      200  {object}   swaggo.GetEventListResponse
+// @Router       /event [get]
 func GetEventList(c *gin.Context) {
 	params := &getListParams{}
 	c.ShouldBind(params)

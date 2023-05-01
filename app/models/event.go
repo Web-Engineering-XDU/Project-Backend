@@ -8,14 +8,14 @@ import (
 
 type Event struct {
 	ID          int `gorm:"primaryKey"`
-	SrcAgentId  int
-	JsonStr     string
-	ContentHash string
-	Error       bool
-	Log         string
-	CreateAt    time.Time
-	DeleteAt    time.Time
-	Deleted     soft_delete.DeletedAt `gorm:"softDelete:flag"`
+	SrcAgentId  int	`gorm:"not null"`
+	JsonStr     string	`gorm:"type:TEXT;not null"`
+	ContentHash string	`gorm:"type:CHAR(16);not null"`
+	Error       bool	`gorm:"not null"`
+	Log         string	`gorm:"type:TEXT;not null"`
+	CreateAt    time.Time	`gorm:"not null"`
+	DeleteAt    time.Time	`gorm:"not null"`
+	Deleted     soft_delete.DeletedAt `gorm:"softDelete:flag;type:TINYINT;not null"`
 }
 
 func InsertEvent(event *Event) error {

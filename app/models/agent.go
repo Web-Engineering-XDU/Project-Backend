@@ -63,7 +63,7 @@ type AgentDetail struct {
 	AgentRuntime
 
 	AgentExtra
-	TypeName string
+	TypeName string `json:"typeName"`
 }
 
 func InsertAgent(agent *Agent) error {

@@ -9,25 +9,26 @@ import (
 const agentTableName = "agents"
 
 type AgentBasic struct {
-	ID     int  `gorm:"primaryKey"  form:"id"`
-	Enable bool `gorm:"not null"    form:"enable"`
-	TypeId int  `gorm:"not null"    form:"typeId"`
+	ID     int  `gorm:"primaryKey"  form:"id"       json:"id"`
+	Enable bool `gorm:"not null"    form:"enable"   json:"enable"`
+	TypeId int  `gorm:"not null"    form:"typeId"   json:"typeId"`
 }
 
 type AgentExtra struct {
-	Name        string    `gorm:"type:VARCHAR(128);not null"  form:"name"`
-	Description string    `gorm:"type:TEXT;not null"          form:"description"`
-	CreateAt    time.Time `gorm:"not null"`
+	Name        string `gorm:"type:VARCHAR(128);not null"  form:"name"         json:"name"`
+	Description string `gorm:"type:TEXT;not null"          form:"description"  json:"description"`
+
+	CreateAt time.Time `gorm:"not null"  json:"createAt"`
 }
 
 type Agent struct {
 	AgentBasic
 	AgentExtra
 
-	EventForever bool           `gorm:"not null"  form:"eventForever"`
-	EventMaxAge  time.Duration  `gorm:"not null"  form:"eventMaxAge"`
+	EventForever bool          `gorm:"not null"  form:"eventForever"   json:"eventForever"`
+	EventMaxAge  time.Duration `gorm:"not null"  form:"eventMaxAge"    json:"eventMaxAge"`
 
-	PropJsonStr  string         `gorm:"type:TEXT;not null"`
+	PropJsonStr string `gorm:"type:TEXT;not null"  form:"propJsonStr"  json:"propJsonStr"`
 
 	Deleted soft_delete.DeletedAt `gorm:"softDelete:flag;type:TINYINT;not null"`
 }
@@ -78,13 +79,13 @@ func SelectAgentRuntimeList() (ret []AgentRuntime) {
 	DB().
 		Model(&Agent{}).
 		Select(`agents.id id,
-		agents.enable enable,
-		agents.event_forever event_forever,
-		agents.event_max_age event_max_age,
-		agents.prop_json_str prop_json_str,
-		agents.type_id type_id,
-		agent_types.allow_input allow_input,
-		agent_types.allow_output allow_output`).
+        agents.enable enable,
+        agents.event_forever event_forever,
+        agents.event_max_age event_max_age,
+        agents.prop_json_str prop_json_str,
+        agents.type_id type_id,
+        agent_types.allow_input allow_input,
+        agent_types.allow_output allow_output`).
 		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
 		Scan(&ret)
 	return ret
@@ -105,16 +106,16 @@ func SelectAgentDetailList(limit, offset int) (ret []AgentDetail) {
 	DB().
 		Model(&Agent{}).
 		Select(`agents.id id,
-		agents.name name,
-		agents.enable enable,
-		agents.event_forever event_forever,
-		agents.event_max_age event_max_age,
-		agents.prop_json_str prop_json_str,
-		agents.create_at create_at,
-		agents.type_id type_id,
-		agent_types.name type_name,
-		agent_types.allow_input allow_input,
-		agent_types.allow_output allow_output`).
+        agents.name name,
+        agents.enable enable,
+        agents.event_forever event_forever,
+        agents.event_max_age event_max_age,
+        agents.prop_json_str prop_json_str,
+        agents.create_at create_at,
+        agents.type_id type_id,
+        agent_types.name type_name,
+        agent_types.allow_input allow_input,
+        agent_types.allow_output allow_output`).
 		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
 		Limit(limit).Offset(offset).
 		Scan(&ret)
@@ -126,16 +127,16 @@ func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {
 		Model(&Agent{}).
 		Where("agents.id = ?", id).
 		Select(`agents.id id,
-		agents.name name,
-		agents.enable enable,
-		agents.event_forever event_forever,
-		agents.event_max_age event_max_age,
-		agents.prop_json_str prop_json_str,
-		agents.create_at create_at,
-		agents.type_id type_id,
-		agent_types.name type_name,
-		agent_types.allow_input allow_input,
-		agent_types.allow_output allow_output`).
+        agents.name name,
+        agents.enable enable,
+        agents.event_forever event_forever,
+        agents.event_max_age event_max_age,
+        agents.prop_json_str prop_json_str,
+        agents.create_at create_at,
+        agents.type_id type_id,
+        agent_types.name type_name,
+        agent_types.allow_input allow_input,
+        agent_types.allow_output allow_output`).
 		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
 		First(&ret).RowsAffected == 1 {
 

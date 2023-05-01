@@ -3,9 +3,9 @@ package models
 const agentRelationTableName = "agent_relations"
 
 type AgentRelation struct {
-	ID         int `gorm:"primaryKey"`
-	SrcAgentId int
-	DstAgentId int
+	ID         int	`gorm:"primaryKey"  form:"id"`
+	SrcAgentId int	`gorm:"not null"    form:"srcAgentId"`
+	DstAgentId int	`gorm:"not null"    form:"dstAgentId"`
 }
 
 func (*AgentRelation) TableName() string {

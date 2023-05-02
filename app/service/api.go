@@ -56,12 +56,12 @@ func GetAgentList(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 // @Param        enable			formData	bool		true	"enable the agent"
-// @Param		 type_id		formData	int			true	"agent type id"
+// @Param		 typeId		formData	int			true	"agent type id"
 // @Param		 name			formData	string		true	"name of the agent"
 // @Param		 description	formData	string		true	"description"
-// @Param		 event_forever	formData	bool		true	"whether keep the event forever"
-// @Param		 event_max_age	formData	int			true	"event max age in nanosecond count"
-// @Param		 prop_json_str	formData	string		true	"props used by specific agent type in json"
+// @Param		 eventForever	formData	bool		true	"whether keep the event forever"
+// @Param		 eventMaxAge	formData	int			true	"event max age in nanosecond count"
+// @Param		 propJsonStr	formData	string		true	"props used by specific agent type in json"
 // @Success      200  {object}   swaggo.NewAgentResponse
 // @Router       /agent [put]
 func NewAgent(c *gin.Context) {
@@ -129,9 +129,9 @@ func DeleteAgent(c *gin.Context) {
 // @Param        enable			formData	bool		true	"enable the agent"
 // @Param		 name			formData	string		true	"name of the agent"
 // @Param		 description	formData	string		true	"description"
-// @Param		 event_forever	formData	bool		true	"whether keep the event forever"
-// @Param		 event_max_age	formData	int			true	"event max age in timestamp"
-// @Param		 prop_json_str	formData	string		true	"props used by specific agent type in json"
+// @Param		 eventForever	formData	bool		true	"whether keep the event forever"
+// @Param		 eventMaxAge	formData	int			true	"event max age in timestamp"
+// @Param		 propJsonStr	formData	string		true	"props used by specific agent type in json"
 // @Success      200  {object}   swaggo.StateInfo
 // @Router       /agent [post]
 func UpdateAgent(c *gin.Context) {

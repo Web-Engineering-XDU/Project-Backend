@@ -58,7 +58,7 @@ func (ac *AgentCollection) init() error {
 			//TODO
 			panic(err)
 		}
-		if v.TypeId == 1 && v.Enable {
+		if v.TypeId == ScheduleAgentId && v.Enable {
 			schedule_agents = append(schedule_agents, ac.agentMap[v.ID])
 		}
 	}
@@ -69,7 +69,7 @@ func (ac *AgentCollection) init() error {
 	}
 
 	for _, v := range schedule_agents {
-		go v.Run(ac.ctx, v, nil)
+		go v.Run(ac.ctx, v, nil, ac.eventHdl.PushEvent)
 	}
 
 	return nil
@@ -94,5 +94,5 @@ func (agents *AgentCollection) NextAgentDo(agentId int, e *Event) {
 	// defer cancle()
 	// agent.Run(ctx, agent, e)
 
-	agent.Run(context.Background(), agent, e)
+	agent.Run(agent.Ctx, agent, e, agents.eventHdl.PushEvent)
 }

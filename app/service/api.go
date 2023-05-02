@@ -1,13 +1,13 @@
 package service
 
 import (
-    "net/http"
-    "strconv"
+	"net/http"
+	"strconv"
 
-    "github.com/Web-Engineering-XDU/Project-Backend/app/models"
-    agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
-    _ "github.com/Web-Engineering-XDU/Project-Backend/docs/swaggo"
-    "github.com/gin-gonic/gin"
+	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
+	agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
+	_ "github.com/Web-Engineering-XDU/Project-Backend/docs/swaggo"
+	"github.com/gin-gonic/gin"
 )
 
 type getListParams struct {
@@ -141,9 +141,9 @@ func UpdateAgent(c *gin.Context) {
         panic("gin need a agent collection to work")
     }
     ac := acInt.(*agentsystem.AgentCollection)
-    ok = ac.UpdateAgent(*params)
-    if !ok {
-        c.JSON(http.StatusOK, makeRespBody(400, "agent with this id doesn't exist", nil))
+    err := ac.UpdateAgent(*params)
+    if err != nil {
+        c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
         return
     }
     c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))

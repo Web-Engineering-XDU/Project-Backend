@@ -25,12 +25,12 @@ func (a *Agent) loadSchduleAgentCore() error {
 	return nil
 }
 
-func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
+func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
 	go cronTimer.Run()
 	var err error
 	agent.Mutex.RLock()
 	sac.cronEntryID, err = cronTimer.AddFunc(sac.CronSpec, func() {
-		agent.ac.eventHdl.PushEvent(&Event{
+		callBack(&Event{
 			SrcAgent:   agent,
 			CreateTime: time.Now(),
 			DeleteTime: time.Now().Add(agent.EventMaxAge),
@@ -41,7 +41,6 @@ func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Even
 	agent.Mutex.RUnlock()
 	if err != nil {
 		log.Panicln(err)
-		//TODO
 	}
 }
 
@@ -53,5 +52,11 @@ func (sac *scheduleAgentCore) Stop() {
 
 func (sac *scheduleAgentCore) IgnoreDuplicateEvent() bool {
 	return true
+}
+
+func (sac *scheduleAgentCore) ValidCheck() error {
+	p := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	_, err := p.Parse(sac.CronSpec)
+	return err
 }
 

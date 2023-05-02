@@ -68,8 +68,8 @@ func (t *httpRequstsTemplate) render(bindings map[string]string) error {
 }
 
 type httpAgentCore struct {
-	OnUpdate       bool `json:"onUpdate"`
-	MergeEvent bool   `json:"mergeEvent"`
+	OnUpdate   bool `json:"onUpdate"`
+	MergeEvent bool `json:"mergeEvent"`
 
 	httpRequstsTemplate
 	Template map[string]string `json:"template"`
@@ -101,8 +101,12 @@ func (a *Agent) loadHttpAgentCore() error {
 	return nil
 }
 
-func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
-	newEvent := &Event{}
+func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
+	newEvent := &Event{
+		SrcAgent:   agent,
+		CreateTime: time.Now(),
+		DeleteTime: time.Now().Add(agent.EventMaxAge),
+	}
 
 	agent.Mutex.RLock()
 	httpReqTemp := deepcopy.Copy(hac.httpRequstsTemplate).(httpRequstsTemplate)
@@ -114,8 +118,8 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 
 	err := httpReqTemp.render(event.Msg)
 	if err != nil {
-		newEvent.MetError = true
-		//TODO
+		handleRunError(newEvent ,err, callBack)
+		return
 	}
 
 	//Http Request
@@ -134,8 +138,8 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 		req.SetRequestURI(v)
 		err = fasthttp.Do(req, resp)
 		if err != nil {
-			newEvent.MetError = true
-			//TODO
+			handleRunError(newEvent ,err, callBack)
+			return
 		}
 
 		//extract data from doc
@@ -149,13 +153,13 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 		case "text":
 			err = selectText(resp.Body(), selectors, &resultMap)
 		default:
-			newEvent.MetError = true
-			//TODO
+			handleRunError(newEvent ,errors.New("unsupported doc type: " + docType), callBack)
+			return
 		}
 
 		if err != nil {
-			newEvent.MetError = true
-			//TODO
+			handleRunError(newEvent ,err, callBack)
+			return
 		}
 
 		for _, v := range resultMap {
@@ -163,23 +167,30 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event) {
 			mergeMap(bindings, event.Msg)
 			err = renderTemplate(temp, bindings)
 			if err != nil {
-				newEvent.MetError = true
-				//TODO
+				handleRunError(newEvent ,err, callBack)
+				return
 			}
 			mergeMap(temp, v)
 			if mergeEvent {
 				mergeMap(temp, event.Msg)
 			}
-			agent.ac.eventHdl.PushEvent(&Event{
-				SrcAgent:      agent,
-				CreateTime:    time.Now(),
-				DeleteTime:    time.Now().Add(agent.EventMaxAge),
+			callBack(&Event{
 				Msg:           temp,
 				ToBeDelivered: true,
 			})
 		}
 
 	}
+}
+
+func handleRunError(newEvent *Event ,err error, callBack func(e *Event)) {
+	if newEvent == nil {
+		return
+	}
+	newEvent.MetError = true
+	newEvent.ToBeDelivered = false
+	newEvent.Log = err.Error()
+	callBack(newEvent)
 }
 
 func (hac *httpAgentCore) Stop() {
@@ -190,9 +201,17 @@ func (hac *httpAgentCore) IgnoreDuplicateEvent() bool {
 	return hac.OnUpdate
 }
 
-// func renderAllStringExceptTemplate(v interface{}, bindings map[string]interface{}) error {
-
-// }
+func (hac *httpAgentCore) ValidCheck() error {
+	if hac.DocType != "text" && hac.DocType != "json" && hac.DocType != "html" {
+		return errors.New("unsupported doc type: " + hac.DocType)
+	}
+	for _, v := range hac.Selectors {
+		if v.SelectorType != "xpath" {
+			return errors.New("unsupported selector type: " + v.SelectorType)
+		}
+	}
+	return nil
+}
 
 var engine = liquid.NewEngine()
 

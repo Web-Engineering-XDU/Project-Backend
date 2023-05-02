@@ -34,9 +34,8 @@ definitions:
         example: false
         type: boolean
       eventMaxAge:
-        allOf:
-        - $ref: '#/definitions/time.Duration'
         example: 0
+        type: integer
       id:
         example: 8848
         type: integer
@@ -145,22 +144,6 @@ definitions:
         example: ok
         type: string
     type: object
-  time.Duration:
-    enum:
-    - 1
-    - 1000
-    - 1000000
-    - 1000000000
-    - 60000000000
-    - 3600000000000
-    type: integer
-    x-enum-varnames:
-    - Nanosecond
-    - Microsecond
-    - Millisecond
-    - Second
-    - Minute
-    - Hour
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -233,6 +216,11 @@ paths:
       - application/json
       description: update agents
       parameters:
+      - description: agent id
+        in: formData
+        name: id
+        required: true
+        type: integer
       - description: enable the agent
         in: formData
         name: enable
@@ -250,17 +238,17 @@ paths:
         type: string
       - description: whether keep the event forever
         in: formData
-        name: event_forever
+        name: eventForever
         required: true
         type: boolean
       - description: event max age in timestamp
         in: formData
-        name: event_max_age
+        name: eventMaxAge
         required: true
         type: integer
       - description: props used by specific agent type in json
         in: formData
-        name: prop_json_str
+        name: propJsonStr
         required: true
         type: string
       produces:
@@ -285,7 +273,7 @@ paths:
         type: boolean
       - description: agent type id
         in: formData
-        name: type_id
+        name: typeId
         required: true
         type: integer
       - description: name of the agent
@@ -300,17 +288,17 @@ paths:
         type: string
       - description: whether keep the event forever
         in: formData
-        name: event_forever
+        name: eventForever
         required: true
         type: boolean
       - description: event max age in nanosecond count
         in: formData
-        name: event_max_age
+        name: eventMaxAge
         required: true
         type: integer
       - description: props used by specific agent type in json
         in: formData
-        name: prop_json_str
+        name: propJsonStr
         required: true
         type: string
       produces:

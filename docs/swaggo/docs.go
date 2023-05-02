@@ -92,7 +92,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "agent type id",
-                        "name": "type_id",
+                        "name": "typeId",
                         "in": "formData",
                         "required": true
                     },
@@ -113,21 +113,21 @@ const docTemplate = `{
                     {
                         "type": "boolean",
                         "description": "whether keep the event forever",
-                        "name": "event_forever",
+                        "name": "eventForever",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "integer",
                         "description": "event max age in nanosecond count",
-                        "name": "event_max_age",
+                        "name": "eventMaxAge",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "props used by specific agent type in json",
-                        "name": "prop_json_str",
+                        "name": "propJsonStr",
                         "in": "formData",
                         "required": true
                     }
@@ -155,6 +155,13 @@ const docTemplate = `{
                 "summary": "Update agents",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "agent id",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "boolean",
                         "description": "enable the agent",
                         "name": "enable",
@@ -178,21 +185,21 @@ const docTemplate = `{
                     {
                         "type": "boolean",
                         "description": "whether keep the event forever",
-                        "name": "event_forever",
+                        "name": "eventForever",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "integer",
                         "description": "event max age in timestamp",
-                        "name": "event_max_age",
+                        "name": "eventMaxAge",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "props used by specific agent type in json",
-                        "name": "prop_json_str",
+                        "name": "propJsonStr",
                         "in": "formData",
                         "required": true
                     }
@@ -366,11 +373,7 @@ const docTemplate = `{
                     "example": false
                 },
                 "eventMaxAge": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/time.Duration"
-                        }
-                    ],
+                    "type": "integer",
                     "example": 0
                 },
                 "id": {
@@ -528,25 +531,6 @@ const docTemplate = `{
                     "example": "ok"
                 }
             }
-        },
-        "time.Duration": {
-            "type": "integer",
-            "enum": [
-                1,
-                1000,
-                1000000,
-                1000000000,
-                60000000000,
-                3600000000000
-            ],
-            "x-enum-varnames": [
-                "Nanosecond",
-                "Microsecond",
-                "Millisecond",
-                "Second",
-                "Minute",
-                "Hour"
-            ]
         }
     },
     "securityDefinitions": {

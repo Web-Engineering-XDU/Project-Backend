@@ -3,6 +3,7 @@ package agentsystem
 import (
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
@@ -18,11 +19,6 @@ func (ac *AgentCollection) AddAgent(a models.Agent) error {
 		return errors.New("agent type with this id does not exist")
 	}
 
-	err := models.InsertAgent(&a)
-	if err != nil {
-		return err
-	}
-
 	agent := &Agent{
 		AgentInfo: AgentInfo{
 			ID:               a.ID,
@@ -32,20 +28,25 @@ func (ac *AgentCollection) AddAgent(a models.Agent) error {
 			SrcAgentId:       make([]int, 0, 2),
 			DstAgentId:       make([]int, 0, 2),
 			EventForever:     a.EventForever,
-			EventMaxAge:      a.EventMaxAge,
+			EventMaxAge:      time.Duration(a.EventMaxAge),
 		},
 		ac:    ac,
 		Ctx:   ac.ctx,
 		Mutex: sync.RWMutex{},
 	}
-	err = agent.loadCore()
+	err := agent.loadCore()
 	if err != nil {
-		//TODO
-		panic(err)
+		return err
 	}
+
+	err = models.InsertAgent(&a)
+	if err != nil {
+		return err
+	}
+
 	ac.agentMap[agent.ID] = agent
-	if agent.Enable && agent.TypeId == 1 {
-		go agent.Run(agent.Ctx, agent, nil)
+	if agent.Enable && agent.TypeId == ScheduleAgentId {
+		go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 	}
 	return nil
 }
@@ -61,38 +62,53 @@ func (ac *AgentCollection) DeleteAgent(id int) bool {
 	return models.DeleteAgent(id)
 }
 
-func (ac *AgentCollection) UpdateAgent(a models.Agent) bool {
+func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
+	var err error
+
 	agent, ok := ac.agentMap[a.ID]
 	if !ok {
-		return false
+		return errors.New("agent type with this id does not exist in runtime")
 	}
+
+	tempAgent := &Agent{
+		AgentInfo: AgentInfo{
+			TypeId:           a.TypeId,
+			AgentCoreJsonStr: a.PropJsonStr,
+		},
+		ac:    ac,
+	}
+
+	coreChanged := agent.AgentCoreJsonStr != a.PropJsonStr
+
+	if coreChanged {
+		err = tempAgent.loadCore()
+		if err != nil {
+			return err
+		}
+	}
+
 	ok = models.UpdateAgent(&a)
 	if !ok {
-		return false
+		return errors.New("agent type with this id does not exist in db")
 	}
 
 	agent.Mutex.Lock()
+	defer agent.Mutex.Unlock()
 
-	var err error
-	coreChanged := agent.AgentCoreJsonStr != a.PropJsonStr
 	agent.AgentCoreJsonStr = a.PropJsonStr
 
 	if coreChanged {
 		if agent.Enable {
 			agent.Stop()
 		}
-		err = agent.loadCore()
-		if err != nil {
-			//TODO
-			panic(err)
-		}
-		if a.Enable {
-			go agent.Run(agent.Ctx, agent, nil)
+		agent.AgentCore = tempAgent.AgentCore
+		if a.Enable && a.TypeId == ScheduleAgentId{
+			go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 		}
 	} else {
 		if agent.Enable != a.Enable {
-			if a.Enable {
-				go agent.Run(agent.Ctx, agent, nil)
+			if a.Enable && a.TypeId == ScheduleAgentId{
+				go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 			} else {
 				agent.Stop()
 			}
@@ -100,10 +116,9 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) bool {
 	}
 	agent.Enable = a.Enable
 	agent.EventForever = a.EventForever
-	agent.EventMaxAge = a.EventMaxAge
-	agent.Mutex.Unlock()
+	agent.EventMaxAge = time.Duration(a.EventMaxAge)
 
-	return true
+	return nil
 }
 
 func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error {

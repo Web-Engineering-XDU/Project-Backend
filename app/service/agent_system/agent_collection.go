@@ -3,6 +3,7 @@ package agentsystem
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
@@ -47,7 +48,7 @@ func (ac *AgentCollection) init() error {
 				SrcAgentId:       make([]int, 0, 2),
 				DstAgentId:       make([]int, 0, 2),
 				EventForever:     v.EventForever,
-				EventMaxAge:      v.EventMaxAge,
+				EventMaxAge:      time.Duration(v.EventMaxAge) ,
 			},
 			ac:    ac,
 			Ctx:   ac.ctx,

@@ -3,6 +3,7 @@ package agentsystem
 import (
 	"errors"
 	"sync"
+	"time"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
@@ -27,7 +28,7 @@ func (ac *AgentCollection) AddAgent(a models.Agent) error {
 			SrcAgentId:       make([]int, 0, 2),
 			DstAgentId:       make([]int, 0, 2),
 			EventForever:     a.EventForever,
-			EventMaxAge:      a.EventMaxAge,
+			EventMaxAge:      time.Duration(a.EventMaxAge),
 		},
 		ac:    ac,
 		Ctx:   ac.ctx,
@@ -115,7 +116,7 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 	}
 	agent.Enable = a.Enable
 	agent.EventForever = a.EventForever
-	agent.EventMaxAge = a.EventMaxAge
+	agent.EventMaxAge = time.Duration(a.EventMaxAge)
 
 	return nil
 }

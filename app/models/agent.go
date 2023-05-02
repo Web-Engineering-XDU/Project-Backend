@@ -25,8 +25,8 @@ type Agent struct {
 	AgentBasic
 	AgentExtra
 
-	EventForever bool          `gorm:"not null"  form:"eventForever"   json:"eventForever"`
-	EventMaxAge  time.Duration `gorm:"not null"  form:"eventMaxAge"    json:"eventMaxAge"   example:"3600000000000"`
+	EventForever bool `gorm:"not null"  form:"eventForever"   json:"eventForever"`
+	EventMaxAge  int  `gorm:"not null"  form:"eventMaxAge"    json:"eventMaxAge"   example:"3600000000000"`
 
 	PropJsonStr string `gorm:"type:TEXT;not null"  form:"propJsonStr"  json:"propJsonStr"`
 
@@ -51,12 +51,12 @@ func (u *Agent) ToUpdateMap() map[string]interface{} {
 type AgentRuntime struct {
 	AgentBasic
 
-	EventForever bool           `json:"eventForever"    example:"false"`
-	EventMaxAge  time.Duration  `json:"eventMaxAge"     example:"0"`
-	PropJsonStr  string         `json:"propJsonStr"     example:"{\"cron\":\"*/5 * * * * *\"}"`
+	EventForever bool   `json:"eventForever"    example:"false"`
+	EventMaxAge  int    `json:"eventMaxAge"     example:"0"`
+	PropJsonStr  string `json:"propJsonStr"     example:"{\"cron\":\"*/5 * * * * *\"}"`
 
-	AllowInput  bool            `json:"allowInput"      example:"false"`
-	AllowOutput bool            `json:"allowOutput"     example:"true"`
+	AllowInput  bool `json:"allowInput"      example:"false"`
+	AllowOutput bool `json:"allowOutput"     example:"true"`
 }
 
 type AgentDetail struct {

@@ -53,7 +53,7 @@ func GetAgentList(c *gin.Context) {
 // @Summary      New agents
 // @Description  new agents
 // @Tags         agents
-// @Accept       json
+// @Accept       x-www-form-urlencoded
 // @Produce      json
 // @Param        enable			formData	bool		true	"enable the agent"
 // @Param		 typeId		formData	int			true	"agent type id"

@@ -51,9 +51,9 @@ func GetAgentList(c *gin.Context) {
 }
 
 // @Summary      New agents
-// @Description  new agents
+// @Description  Create new agents. Also support application/json
 // @Tags         agents
-// @Accept       json
+// @Accept       x-www-form-urlencoded	
 // @Produce      json
 // @Param        enable			formData	bool		true	"enable the agent"
 // @Param		 typeId		    formData	int			true	"agent type id"
@@ -121,9 +121,9 @@ func DeleteAgent(c *gin.Context) {
 }
 
 // @Summary      Update agents
-// @Description  update agents
+// @Description  Update agents with specific id. Also support application/json
 // @Tags         agents
-// @Accept       json
+// @Accept       x-www-form-urlencoded
 // @Produce      json
 // @Param        id			    formData	int         true    "agent id"
 // @Param        enable			formData	bool		true	"enable the agent"
@@ -193,7 +193,7 @@ type setAgentRelationParams struct {
 }
 
 // @Summary      Set Agent Relations
-// @Description  set agent relations
+// @Description  Set relations of an agent with specific id. Also support x-www-form-urlencoded
 // @Tags         relations
 // @Accept       json
 // @Produce      json

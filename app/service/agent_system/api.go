@@ -67,7 +67,7 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 
 	agent, ok := ac.agentMap[a.ID]
 	if !ok {
-		return errors.New("agent type with this id does not exist in runtime")
+		return errors.New("agent with this id does not exist in runtime")
 	}
 
 	tempAgent := &Agent{
@@ -89,7 +89,7 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 
 	ok = models.UpdateAgent(&a)
 	if !ok {
-		return errors.New("agent type with this id does not exist in db")
+		return errors.New("agent with this id does not exist in db")
 	}
 
 	agent.Mutex.Lock()

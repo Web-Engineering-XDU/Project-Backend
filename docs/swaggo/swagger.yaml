@@ -213,8 +213,8 @@ paths:
       - agents
     post:
       consumes:
-      - application/json
-      description: update agents
+      - application/x-www-form-urlencoded
+      description: Update agents with specific id. Also support application/json
       parameters:
       - description: agent id
         in: formData
@@ -263,8 +263,8 @@ paths:
       - agents
     put:
       consumes:
-      - application/json
-      description: new agents
+      - application/x-www-form-urlencoded
+      description: Create new agents. Also support application/json
       parameters:
       - description: enable the agent
         in: formData
@@ -315,7 +315,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: set agent relations
+      description: Set relations of an agent with specific id. Also support x-www-form-urlencoded
       parameters:
       - description: all relations of an agent
         in: body

@@ -70,9 +70,9 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "new agents",
+                "description": "Create new agents. Also support application/json",
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -142,9 +142,9 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "update agents",
+                "description": "Update agents with specific id. Also support application/json",
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -246,7 +246,7 @@ const docTemplate = `{
         },
         "/agent-relation": {
             "post": {
-                "description": "set agent relations",
+                "description": "Set relations of an agent with specific id. Also support x-www-form-urlencoded",
                 "consumes": [
                     "application/json"
                 ],

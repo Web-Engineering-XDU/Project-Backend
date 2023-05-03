@@ -53,7 +53,7 @@ func GetAgentList(c *gin.Context) {
 // @Summary      New agents
 // @Description  new agents
 // @Tags         agents
-// @Accept       json
+// @Accept       x-www-form-urlencoded
 // @Produce      json
 // @Param        enable			formData	bool		true	"enable the agent"
 // @Param		 typeId		    formData	int			true	"agent type id"
@@ -125,13 +125,13 @@ func DeleteAgent(c *gin.Context) {
 // @Tags         agents
 // @Accept       json
 // @Produce      json
-// @Param        id			    formData	int         true    "agent id"
-// @Param        enable			formData	bool		true	"enable the agent"
-// @Param		 name			formData	string		true	"name of the agent"
-// @Param		 description	formData	string		true	"description"
-// @Param		 eventForever	formData	bool		true	"whether keep the event forever"
-// @Param		 eventMaxAge	formData	int			true	"event max age in timestamp"
-// @Param		 propJsonStr	formData	string		true	"props used by specific agent type in json"
+// @Param        id			    body	int         true    "agent id"
+// @Param        enable			body	bool		true	"enable the agent"
+// @Param		 name			body	string		true	"name of the agent"
+// @Param		 description	body	string		true	"description"
+// @Param		 eventForever	body	bool		true	"whether keep the event forever"
+// @Param		 eventMaxAge	body	int			true	"event max age in timestamp"
+// @Param		 propJsonStr	body	string		true	"props used by specific agent type in json"
 // @Success      200  {object}   swaggo.StateInfo
 // @Router       /agent [post]
 func UpdateAgent(c *gin.Context) {

@@ -53,10 +53,10 @@ func GetAgentList(c *gin.Context) {
 // @Summary      New agents
 // @Description  new agents
 // @Tags         agents
-// @Accept       json
+// @Accept       x-www-form-urlencoded	
 // @Produce      json
 // @Param        enable			formData	bool		true	"enable the agent"
-// @Param		 typeId		formData	int			true	"agent type id"
+// @Param		 typeId		    formData	int			true	"agent type id"
 // @Param		 name			formData	string		true	"name of the agent"
 // @Param		 description	formData	string		true	"description"
 // @Param		 eventForever	formData	bool		true	"whether keep the event forever"
@@ -123,7 +123,7 @@ func DeleteAgent(c *gin.Context) {
 // @Summary      Update agents
 // @Description  update agents
 // @Tags         agents
-// @Accept       json
+// @Accept       x-www-form-urlencoded	
 // @Produce      json
 // @Param        id			    formData	int         true    "agent id"
 // @Param        enable			formData	bool		true	"enable the agent"

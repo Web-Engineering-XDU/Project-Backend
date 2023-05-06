@@ -112,12 +112,17 @@ func DeleteAgent(c *gin.Context) {
 		return
 	}
 
-	if ac.DeleteAgent(ID) {
-		c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))
+	ok, err = ac.DeleteAgent(ID)
+
+	if err != nil{
+		c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
+		return
+	} 
+	if !ok {
+		c.JSON(http.StatusOK, makeRespBody(200, "agent with this id does not exist", nil))
 		return
 	}
-
-	c.JSON(http.StatusOK, makeRespBody(400, "agent with this id doesn't exist", nil))
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))
 }
 
 // @Summary      Update agents

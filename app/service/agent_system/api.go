@@ -51,15 +51,20 @@ func (ac *AgentCollection) AddAgent(a models.Agent) error {
 	return nil
 }
 
-func (ac *AgentCollection) DeleteAgent(id int) bool {
+func (ac *AgentCollection) DeleteAgent(id int) (bool, error) {
 	agent, ok := ac.agentMap[id]
 	if !ok {
-		return false
+		return false, nil
+	}
+
+	ok, err := models.DeleteAgentAndRelationsAbout(id)
+	if err != nil {
+		return ok, err
 	}
 
 	agent.Stop()
 	delete(ac.agentMap, id)
-	return models.DeleteAgent(id)
+	return true, nil
 }
 
 func (ac *AgentCollection) UpdateAgent(a models.Agent) error {

@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 )
 
@@ -71,8 +72,24 @@ func InsertAgent(agent *Agent) error {
 	return DB().Create(agent).Error
 }
 
-func DeleteAgent(id int) bool {
-	return DB().Delete(&Agent{}, id).RowsAffected > 0
+func DeleteAgent(id int) error {
+	return DB().Delete(&Agent{}, id).Error
+}
+
+func DeleteAgentAndRelationsAbout(id int) (bool, error) {
+	err := DB().Transaction(func(tx *gorm.DB) error {
+		err := DeleteAgent(id)
+		if err != nil {
+			return err
+		}
+		err = DeleteAllAgentRelationAbout(id)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	
+	return err == nil, err
 }
 
 func SelectAgentRuntimeList() (ret []AgentRuntime) {

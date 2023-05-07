@@ -75,10 +75,11 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 	if !ok {
 		return errors.New("agent with this id does not exist in runtime")
 	}
-
+	
+	a.TypeId = agent.TypeId
 	tempAgent := &Agent{
 		AgentInfo: AgentInfo{
-			TypeId:           agent.TypeId,
+			TypeId:           a.TypeId,
 			AgentCoreJsonStr: a.PropJsonStr,
 		},
 		ac:    ac,

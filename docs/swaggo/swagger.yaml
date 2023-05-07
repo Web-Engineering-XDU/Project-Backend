@@ -52,6 +52,15 @@ definitions:
         example: Schedule Agent
         type: string
     type: object
+  github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation:
+    properties:
+      dstAgentId:
+        type: integer
+      id:
+        type: integer
+      srcAgentId:
+        type: integer
+    type: object
   github_com_Web-Engineering-XDU_Project-Backend_app_models.Event:
     properties:
       contentHash:
@@ -118,6 +127,19 @@ definitions:
         type: array
       count:
         type: integer
+    type: object
+  swaggo.GetRelationsResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      msg:
+        example: ok
+        type: string
+      result:
+        items:
+          $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation'
+        type: array
     type: object
   swaggo.NewAgentResponse:
     properties:
@@ -312,6 +334,20 @@ paths:
       tags:
       - agents
   /agent-relation:
+    get:
+      consumes:
+      - application/json
+      description: get all relations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.GetRelationsResponse'
+      summary: List Relations
+      tags:
+      - relations
     post:
       consumes:
       - application/json

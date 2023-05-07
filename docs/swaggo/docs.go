@@ -245,6 +245,27 @@ const docTemplate = `{
             }
         },
         "/agent-relation": {
+            "get": {
+                "description": "get all relations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "relations"
+                ],
+                "summary": "List Relations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.GetRelationsResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Set relations of an agent with specific id. Also support x-www-form-urlencoded",
                 "consumes": [
@@ -398,6 +419,20 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation": {
+            "type": "object",
+            "properties": {
+                "dstAgentId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "srcAgentId": {
+                    "type": "integer"
+                }
+            }
+        },
         "github_com_Web-Engineering-XDU_Project-Backend_app_models.Event": {
             "type": "object",
             "properties": {
@@ -492,6 +527,25 @@ const docTemplate = `{
                 },
                 "count": {
                     "type": "integer"
+                }
+            }
+        },
+        "swaggo.GetRelationsResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation"
+                    }
                 }
             }
         },

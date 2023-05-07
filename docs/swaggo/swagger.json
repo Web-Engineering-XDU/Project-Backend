@@ -490,6 +490,9 @@
                 },
                 "count": {
                     "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
                 }
             }
         },
@@ -519,6 +522,9 @@
                     }
                 },
                 "count": {
+                    "type": "integer"
+                },
+                "totalCount": {
                     "type": "integer"
                 }
             }

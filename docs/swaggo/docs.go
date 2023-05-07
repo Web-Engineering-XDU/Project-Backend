@@ -497,6 +497,9 @@ const docTemplate = `{
                 },
                 "count": {
                     "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
                 }
             }
         },
@@ -526,6 +529,9 @@ const docTemplate = `{
                     }
                 },
                 "count": {
+                    "type": "integer"
+                },
+                "totalCount": {
                     "type": "integer"
                 }
             }

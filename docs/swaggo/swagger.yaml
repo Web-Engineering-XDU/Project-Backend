@@ -107,6 +107,8 @@ definitions:
         type: array
       count:
         type: integer
+      totalCount:
+        type: integer
     type: object
   swaggo.GetEventListResponse:
     properties:
@@ -126,6 +128,8 @@ definitions:
           $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.Event'
         type: array
       count:
+        type: integer
+      totalCount:
         type: integer
     type: object
   swaggo.GetRelationsResponse:

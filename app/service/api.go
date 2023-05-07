@@ -74,7 +74,7 @@ func NewAgent(c *gin.Context) {
 	}
 	ac := acInt.(*agentsystem.AgentCollection)
 
-	err := ac.AddAgent(*params)
+	err := ac.AddAgent(params)
 
 	if err != nil {
 		c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))

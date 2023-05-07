@@ -8,7 +8,7 @@ import (
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
 
-func (ac *AgentCollection) AddAgent(a models.Agent) error {
+func (ac *AgentCollection) AddAgent(a *models.Agent) error {
 	_, ok := ac.agentMap[a.ID]
 	if ok {
 		//Already running
@@ -39,7 +39,7 @@ func (ac *AgentCollection) AddAgent(a models.Agent) error {
 		return err
 	}
 
-	err = models.InsertAgent(&a)
+	err = models.InsertAgent(a)
 	if err != nil {
 		return err
 	}

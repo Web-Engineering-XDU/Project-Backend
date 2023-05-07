@@ -44,7 +44,8 @@ func (ac *AgentCollection) AddAgent(a *models.Agent) error {
 		return err
 	}
 
-	ac.agentMap[a.ID] = agent
+	agent.ID = a.ID
+	ac.agentMap[agent.ID] = agent
 	if agent.Enable && agent.TypeId == ScheduleAgentId {
 		go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 	}

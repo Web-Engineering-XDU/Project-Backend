@@ -78,7 +78,7 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 
 	tempAgent := &Agent{
 		AgentInfo: AgentInfo{
-			TypeId:           a.TypeId,
+			TypeId:           agent.TypeId,
 			AgentCoreJsonStr: a.PropJsonStr,
 		},
 		ac:    ac,

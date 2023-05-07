@@ -115,28 +115,31 @@ func SelectAgentBasicInfoList(limit, offset int) (ret []Agent) {
 	return ret
 }
 
-func SelectAgentDetailList(limit, offset int) (ret []AgentDetail) {
-	if offset+limit < 1 {
-		return []AgentDetail{}
-	}
+func SelectAgentDetailList(limit, offset int) (ret []AgentDetail, totalCount int64) {
 
-	DB().
-		Model(&Agent{}).
-		Select(`agents.id id,
-        agents.name name,
-        agents.enable enable,
-        agents.event_forever event_forever,
-        agents.event_max_age event_max_age,
-        agents.prop_json_str prop_json_str,
-        agents.create_at create_at,
-        agents.type_id type_id,
-        agent_types.name type_name,
-        agent_types.allow_input allow_input,
-        agent_types.allow_output allow_output`).
-		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
-		Limit(limit).Offset(offset).
+	tx := DB().
+	Model(&Agent{}).
+	Select(`agents.id id,
+	agents.name name,
+	agents.enable enable,
+	agents.event_forever event_forever,
+	agents.event_max_age event_max_age,
+	agents.prop_json_str prop_json_str,
+	agents.create_at create_at,
+	agents.type_id type_id,
+	agent_types.name type_name,
+	agent_types.allow_input allow_input,
+	agent_types.allow_output allow_output`).
+	Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").Count(&totalCount)
+
+	if offset+limit < 1 {
+		ret = []AgentDetail{}
+	} else {
+		tx.Limit(limit).Offset(offset).
 		Scan(&ret)
-	return ret
+	}
+		
+	return ret, totalCount
 }
 
 func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {

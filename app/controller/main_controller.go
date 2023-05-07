@@ -23,6 +23,7 @@ func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Eng
 
 	router.GET("/event", service.GetEventList)
 
+	router.GET("/agent-relation", service.GetAllAgentRelations)
 	router.POST("/agent-relation", service.SetAgentRelation)
 
 	//TODO

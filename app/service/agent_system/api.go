@@ -94,10 +94,7 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 		}
 	}
 
-	ok, err = models.UpdateAgent(&a)
-	if !ok {
-		return errors.New("agent with this id does not exist in db")
-	}
+	err = models.UpdateAgent(&a)
 	if err != nil {
 		return err
 	}

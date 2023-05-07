@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -164,8 +163,6 @@ func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {
 	}
 }
 
-func UpdateAgent(agent *Agent) (bool, error) {
-	tx := DB().Model(agent).Updates(agent.ToUpdateMap())
-	fmt.Println(tx.Statement.SQL)
-	return tx.RowsAffected > 0, tx.Error
+func UpdateAgent(agent *Agent) error {
+	return DB().Model(agent).Updates(agent.ToUpdateMap()).Error
 }

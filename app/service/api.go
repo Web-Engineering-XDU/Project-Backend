@@ -221,6 +221,18 @@ func SetAgentRelation(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))
 }
 
+// @Summary      List Relations
+// @Description  get all relations
+// @Tags         relations
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   swaggo.GetRelationsResponse
+// @Router       /agent-relation [get]
+func GetAllAgentRelations(c *gin.Context) {
+	result := models.SelectAgentRelationList()
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(result), result)))
+}
+
 func makeCountContent(count int, content any) gin.H {
 	if content == nil {
 		content = []struct{}{}

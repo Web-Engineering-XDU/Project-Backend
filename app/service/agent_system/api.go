@@ -94,9 +94,12 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 		}
 	}
 
-	ok = models.UpdateAgent(&a)
+	ok, err = models.UpdateAgent(&a)
 	if !ok {
 		return errors.New("agent with this id does not exist in db")
+	}
+	if err != nil {
+		return err
 	}
 
 	agent.Mutex.Lock()

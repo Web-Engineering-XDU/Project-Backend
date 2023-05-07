@@ -43,9 +43,9 @@ func (u *Agent) ToUpdateMap() map[string]interface{} {
 		"enable":       u.Enable,
 		"name":         u.Name,
 		"description":  u.Description,
-		"eventForever": u.EventForever,
-		"eventMaxAge":  u.EventMaxAge,
-		"propJsonStr":  u.PropJsonStr,
+		"event_forever": u.EventForever,
+		"event_max_age":  u.EventMaxAge,
+		"prop_json_str":  u.PropJsonStr,
 	}
 }
 
@@ -163,6 +163,6 @@ func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {
 	}
 }
 
-func UpdateAgent(agent *Agent) bool {
-	return DB().Model(agent).Updates(agent.ToUpdateMap()).RowsAffected > 0
+func UpdateAgent(agent *Agent) error {
+	return DB().Model(agent).Updates(agent.ToUpdateMap()).Error
 }

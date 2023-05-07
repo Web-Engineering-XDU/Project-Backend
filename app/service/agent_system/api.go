@@ -8,7 +8,7 @@ import (
 	"github.com/Web-Engineering-XDU/Project-Backend/app/models"
 )
 
-func (ac *AgentCollection) AddAgent(a models.Agent) error {
+func (ac *AgentCollection) AddAgent(a *models.Agent) error {
 	_, ok := ac.agentMap[a.ID]
 	if ok {
 		//Already running
@@ -39,11 +39,12 @@ func (ac *AgentCollection) AddAgent(a models.Agent) error {
 		return err
 	}
 
-	err = models.InsertAgent(&a)
+	err = models.InsertAgent(a)
 	if err != nil {
 		return err
 	}
 
+	agent.ID = a.ID
 	ac.agentMap[agent.ID] = agent
 	if agent.Enable && agent.TypeId == ScheduleAgentId {
 		go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
@@ -74,7 +75,8 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 	if !ok {
 		return errors.New("agent with this id does not exist in runtime")
 	}
-
+	
+	a.TypeId = agent.TypeId
 	tempAgent := &Agent{
 		AgentInfo: AgentInfo{
 			TypeId:           a.TypeId,
@@ -92,9 +94,9 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 		}
 	}
 
-	ok = models.UpdateAgent(&a)
-	if !ok {
-		return errors.New("agent with this id does not exist in db")
+	err = models.UpdateAgent(&a)
+	if err != nil {
+		return err
 	}
 
 	agent.Mutex.Lock()

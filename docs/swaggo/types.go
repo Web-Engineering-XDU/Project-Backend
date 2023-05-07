@@ -3,8 +3,9 @@ package swaggo
 import "github.com/Web-Engineering-XDU/Project-Backend/app/models"
 
 type GetAgentListResponseResult struct {
-	Content []models.AgentDetail `json:"content"`
-	Count   int                  `json:"count"`
+	Content    []models.AgentDetail `json:"content"`
+	Count      int                  `json:"count"`
+	TotalCount int                  `json:"totalCount"`
 }
 
 type NewAgentResponseResult struct {
@@ -27,8 +28,9 @@ type NewAgentResponse struct {
 }
 
 type GetEventListResponseResult struct {
-	Content []models.Event `json:"content"`
-	Count   int            `json:"count"`
+	Content    []models.Event `json:"content"`
+	Count      int            `json:"count"`
+	TotalCount int            `json:"totalCount"`
 }
 
 type GetEventListResponse struct {

@@ -30,30 +30,28 @@ func GetAgentList(c *gin.Context) {
 	params := &getListParams{}
 	c.ShouldBind(params)
 
-	results := make([]models.AgentDetail, 0)
+	var results []models.AgentDetail
+	var totalCount int64
 
 	if params.ID == 0 {
-		results = append(
-			results,
-			models.SelectAgentDetailList(
-				params.Number,
-				(params.Page-1)*params.Number,
-			)...,
+		results, totalCount = models.SelectAgentDetailList(
+			params.Number,
+			(params.Page-1)*params.Number,
 		)
 	} else {
 		agent, ok := models.SelectAgentDetailByID(params.ID)
 		if ok {
-			results = append(results, agent)
+			results = []models.AgentDetail{agent}
 		}
 	}
 
-	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), results)))
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), int(totalCount), results)))
 }
 
 // @Summary      New agents
 // @Description  Create new agents. Also support application/json
 // @Tags         agents
-// @Accept       x-www-form-urlencoded	
+// @Accept       x-www-form-urlencoded
 // @Produce      json
 // @Param        enable			formData	bool		true	"enable the agent"
 // @Param		 typeId		    formData	int			true	"agent type id"
@@ -114,10 +112,10 @@ func DeleteAgent(c *gin.Context) {
 
 	ok, err = ac.DeleteAgent(ID)
 
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
 		return
-	} 
+	}
 	if !ok {
 		c.JSON(http.StatusOK, makeRespBody(200, "agent with this id does not exist", nil))
 		return
@@ -169,26 +167,24 @@ func GetEventList(c *gin.Context) {
 	params := &getListParams{}
 	c.ShouldBind(params)
 
-	results := make([]models.Event, 0)
+	var results []models.Event
+	var totalCount int64
 
 	if params.ID == 0 {
-		results = append(
-			results,
-			models.SelectEventList(
-				params.Number,
-				(params.Page-1)*params.Number,
-			)...,
+		results, totalCount = models.SelectEventList(
+			params.Number,
+			(params.Page-1)*params.Number,
 		)
 	} else {
-		agent := models.SelectEventListByAgentID(
+		results, totalCount = models.SelectEventListByAgentID(
 			params.ID,
 			params.Number,
 			(params.Page-1)*params.Number,
 		)
-		results = append(results, agent...)
+		results = append([]models.Event{}, results...)
 	}
 
-	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), results)))
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), int(totalCount), results)))
 }
 
 type setAgentRelationParams struct {
@@ -230,16 +226,17 @@ func SetAgentRelation(c *gin.Context) {
 // @Router       /agent-relation [get]
 func GetAllAgentRelations(c *gin.Context) {
 	result := models.SelectAgentRelationList()
-	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(result), result)))
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(result), len(result), result)))
 }
 
-func makeCountContent(count int, content any) gin.H {
+func makeCountContent(count int, totalCount int, content any) gin.H {
 	if content == nil {
 		content = []struct{}{}
 	}
 	return gin.H{
-		"count":   count,
-		"content": content,
+		"count":      count,
+		"totalCount": totalCount,
+		"content":    content,
 	}
 }
 

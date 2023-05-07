@@ -43,9 +43,9 @@ func (u *Agent) ToUpdateMap() map[string]interface{} {
 		"enable":       u.Enable,
 		"name":         u.Name,
 		"description":  u.Description,
-		"eventForever": u.EventForever,
-		"eventMaxAge":  u.EventMaxAge,
-		"propJsonStr":  u.PropJsonStr,
+		"event_forever": u.EventForever,
+		"event_max_age":  u.EventMaxAge,
+		"prop_json_str":  u.PropJsonStr,
 	}
 }
 

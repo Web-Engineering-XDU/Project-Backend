@@ -102,10 +102,14 @@ func (a *Agent) loadHttpAgentCore() error {
 }
 
 func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
+	deleteTime := time.Now().Add(agent.EventMaxAge)
+	if agent.EventForever {
+		deleteTime = time.Now().AddDate(100, 0, 0)
+	}
 	newEvent := &Event{
 		SrcAgent:   agent,
 		CreateTime: time.Now(),
-		DeleteTime: time.Now().Add(agent.EventMaxAge),
+		DeleteTime: deleteTime,
 	}
 
 	agent.Mutex.RLock()

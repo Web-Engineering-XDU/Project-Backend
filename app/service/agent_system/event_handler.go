@@ -35,7 +35,7 @@ func (eventHdl *eventHandler) run() {
 					continue
 				}
 
-				if event.SrcAgent.EventMaxAge != 0 {
+				if event.SrcAgent.EventMaxAge != 0 || event.SrcAgent.EventForever{
 					jsonStr := ""
 					log := ""
 					if event.MetError {

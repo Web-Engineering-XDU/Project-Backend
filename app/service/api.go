@@ -236,7 +236,7 @@ type dryRunParams struct {
 }
 
 // @Summary      Dry run
-// @Description  Dry run.
+// @Description  Dry run
 // @Tags         agents
 // @Accept       json
 // @Produce      json

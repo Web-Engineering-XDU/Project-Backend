@@ -230,20 +230,33 @@ func GetAllAgentRelations(c *gin.Context) {
 }
 
 type dryRunParams struct {
-	AgentProps models.Agent   `form:"agentProps" json:"agentProps"`
-	Msg agentsystem.Message `form:"event" json:"event"`
+	AgentTypeId      int                 `form:"agentTypeId" json:"agentTypeId"`
+	AgentPropJsonStr string              `form:"agentPropJsonStr" json:"agentPropJsonStr"`
+	Msg              agentsystem.Message `form:"event" json:"event"`
 }
 
+// @Summary      Dry run
+// @Description  Dry run.
+// @Tags         agents
+// @Accept       json
+// @Produce      json
+// @Param        request    body    dryRunParams    true    "agent and event"
+// @Success      200  {object}   swaggo.DryRunResponse
+// @Router       /agent/dry-run [post]
 func DryRun(c *gin.Context) {
 	params := &dryRunParams{}
 	c.ShouldBind(params)
 
-	msg, err := agentsystem.DryRunAgent(&params.AgentProps, params.Msg)
+	msg, err := agentsystem.DryRunAgent(&models.Agent{
+		AgentBasic: models.AgentBasic{
+			TypeId: params.AgentTypeId,
+		},
+		PropJsonStr: params.AgentPropJsonStr,
+	}, params.Msg)
 	if err != nil {
 		c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
 		return
 	}
-
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", msg))
 }
 

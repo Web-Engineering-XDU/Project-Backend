@@ -147,6 +147,9 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 }
 
 func DryRunAgent(a *models.Agent, msg Message) (Message, error){
+	if a.TypeId != HttpAgentId {
+		return nil, errors.New("this agent type cannot dry run")
+	}
 	agent := &Agent{
 		AgentInfo: AgentInfo{
 			TypeId:           a.TypeId,

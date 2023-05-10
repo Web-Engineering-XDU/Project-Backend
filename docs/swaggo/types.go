@@ -42,3 +42,8 @@ type GetRelationsResponse struct {
 	StateInfo
 	Result []models.AgentRelation `json:"result"`
 }
+
+type DryRunResponse struct {
+	StateInfo
+	Event string `json:"outputEvent"`
+}

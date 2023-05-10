@@ -1,6 +1,7 @@
 package agentsystem
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"time"
@@ -146,7 +147,29 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 }
 
 func DryRunAgent(a *models.Agent, msg Message) (Message, error){
-	return nil, nil
+	if a.TypeId != HttpAgentId {
+		return nil, errors.New("this agent type cannot dry run")
+	}
+	agent := &Agent{
+		AgentInfo: AgentInfo{
+			TypeId:           a.TypeId,
+			AgentCoreJsonStr: a.PropJsonStr,
+		},
+		Ctx:   context.Background(),
+		Mutex: sync.RWMutex{},
+	}
+	err := agent.loadCore()
+	if err != nil {
+		return nil, err
+	}
+	var event *Event
+	agent.Run(agent.Ctx, agent, &Event{Msg: msg}, func(e *Event) {
+		event = e
+	})
+	if event.MetError {
+		return nil, errors.New(event.Log)
+	}
+	return event.Msg, nil
 }
 
 func DeleteAgent() {}

@@ -22,7 +22,7 @@ func NewEventHandler() eventHandler {
 }
 
 func (eventHdl *eventHandler) run() {
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 10; i++ {
 		go func() {
 			json := jsoniter.ConfigFastest
 			var event *Event

@@ -229,6 +229,24 @@ func GetAllAgentRelations(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(result), len(result), result)))
 }
 
+type dryRunParams struct {
+	AgentProps models.Agent   `form:"agentProps" json:"agentProps"`
+	Msg agentsystem.Message `form:"event" json:"event"`
+}
+
+func DryRun(c *gin.Context) {
+	params := &dryRunParams{}
+	c.ShouldBind(params)
+
+	msg, err := agentsystem.DryRunAgent(&params.AgentProps, params.Msg)
+	if err != nil {
+		c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", msg))
+}
+
 func makeCountContent(count int, totalCount int, content any) gin.H {
 	if content == nil {
 		content = []struct{}{}

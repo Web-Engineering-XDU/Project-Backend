@@ -145,6 +145,8 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 	return nil
 }
 
-func DryRunAgent() {}
+func DryRunAgent(a *models.Agent, msg Message) (Message, error){
+	return nil, nil
+}
 
 func DeleteAgent() {}

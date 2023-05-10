@@ -16,10 +16,12 @@ func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Eng
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set("agents", ac)
 	})
-	router.PUT("/agent", service.NewAgent)
-	router.DELETE("/agent", service.DeleteAgent)
-	router.POST("/agent",service.UpdateAgent)
-	router.GET("/agent", service.GetAgentList)
+	agentRouter := router.Group("/agent")
+	agentRouter.PUT("", service.NewAgent)
+	agentRouter.DELETE("", service.DeleteAgent)
+	agentRouter.POST("",service.UpdateAgent)
+	agentRouter.GET("", service.GetAgentList)
+	agentRouter.POST("/dry-run", service.DryRun)
 
 	router.GET("/event", service.GetEventList)
 

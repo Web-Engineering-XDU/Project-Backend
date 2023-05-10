@@ -1,19 +1,10 @@
 basePath: /
 definitions:
-  app_service.setAgentRelationParams:
-    properties:
-      agentId:
-        type: integer
-      dsts:
-        items:
-          type: integer
-        type: array
-      srcs:
-        items:
-          type: integer
-        type: array
+  github_com_Web-Engineering-XDU_Project-Backend_app_service_agent_system.Message:
+    additionalProperties:
+      type: string
     type: object
-  github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail:
+  models.AgentDetail:
     properties:
       allowInput:
         example: false
@@ -52,7 +43,7 @@ definitions:
         example: Schedule Agent
         type: string
     type: object
-  github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation:
+  models.AgentRelation:
     properties:
       dstAgentId:
         type: integer
@@ -61,7 +52,7 @@ definitions:
       srcAgentId:
         type: integer
     type: object
-  github_com_Web-Engineering-XDU_Project-Backend_app_models.Event:
+  models.Event:
     properties:
       contentHash:
         example: 47ed5d26b86a7519
@@ -88,6 +79,39 @@ definitions:
         example: 1145
         type: integer
     type: object
+  service.dryRunParams:
+    properties:
+      agentPropJsonStr:
+        type: string
+      agentTypeId:
+        type: integer
+      event:
+        $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_service_agent_system.Message'
+    type: object
+  service.setAgentRelationParams:
+    properties:
+      agentId:
+        type: integer
+      dsts:
+        items:
+          type: integer
+        type: array
+      srcs:
+        items:
+          type: integer
+        type: array
+    type: object
+  swaggo.DryRunResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      msg:
+        example: ok
+        type: string
+      outputEvent:
+        type: string
+    type: object
   swaggo.GetAgentListResponse:
     properties:
       code:
@@ -103,7 +127,7 @@ definitions:
     properties:
       content:
         items:
-          $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail'
+          $ref: '#/definitions/models.AgentDetail'
         type: array
       count:
         type: integer
@@ -125,7 +149,7 @@ definitions:
     properties:
       content:
         items:
-          $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.Event'
+          $ref: '#/definitions/models.Event'
         type: array
       count:
         type: integer
@@ -142,7 +166,7 @@ definitions:
         type: string
       result:
         items:
-          $ref: '#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation'
+          $ref: '#/definitions/models.AgentRelation'
         type: array
     type: object
   swaggo.NewAgentResponse:
@@ -362,7 +386,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/app_service.setAgentRelationParams'
+          $ref: '#/definitions/service.setAgentRelationParams'
       produces:
       - application/json
       responses:
@@ -373,6 +397,28 @@ paths:
       summary: Set Agent Relations
       tags:
       - relations
+  /agent/dry-run:
+    post:
+      consumes:
+      - application/json
+      description: Dry run
+      parameters:
+      - description: agent and event
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.dryRunParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.DryRunResponse'
+      summary: Dry run
+      tags:
+      - agents
   /event:
     get:
       consumes:

@@ -285,7 +285,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/app_service.setAgentRelationParams"
+                            "$ref": "#/definitions/service.setAgentRelationParams"
                         }
                     }
                 ],
@@ -294,6 +294,40 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/swaggo.GetEventListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/dry-run": {
+            "post": {
+                "description": "Dry run",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agents"
+                ],
+                "summary": "Dry run",
+                "parameters": [
+                    {
+                        "description": "agent and event",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.dryRunParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.DryRunResponse"
                         }
                     }
                 }
@@ -346,27 +380,13 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "app_service.setAgentRelationParams": {
+        "github_com_Web-Engineering-XDU_Project-Backend_app_service_agent_system.Message": {
             "type": "object",
-            "properties": {
-                "agentId": {
-                    "type": "integer"
-                },
-                "dsts": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "srcs": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                }
+            "additionalProperties": {
+                "type": "string"
             }
         },
-        "github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail": {
+        "models.AgentDetail": {
             "type": "object",
             "properties": {
                 "allowInput": {
@@ -419,7 +439,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation": {
+        "models.AgentRelation": {
             "type": "object",
             "properties": {
                 "dstAgentId": {
@@ -433,7 +453,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Web-Engineering-XDU_Project-Backend_app_models.Event": {
+        "models.Event": {
             "type": "object",
             "properties": {
                 "contentHash": {
@@ -470,6 +490,56 @@ const docTemplate = `{
                 }
             }
         },
+        "service.dryRunParams": {
+            "type": "object",
+            "properties": {
+                "agentPropJsonStr": {
+                    "type": "string"
+                },
+                "agentTypeId": {
+                    "type": "integer"
+                },
+                "event": {
+                    "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_service_agent_system.Message"
+                }
+            }
+        },
+        "service.setAgentRelationParams": {
+            "type": "object",
+            "properties": {
+                "agentId": {
+                    "type": "integer"
+                },
+                "dsts": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "srcs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "swaggo.DryRunResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "outputEvent": {
+                    "type": "string"
+                }
+            }
+        },
         "swaggo.GetAgentListResponse": {
             "type": "object",
             "properties": {
@@ -492,7 +562,7 @@ const docTemplate = `{
                 "content": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentDetail"
+                        "$ref": "#/definitions/models.AgentDetail"
                     }
                 },
                 "count": {
@@ -525,7 +595,7 @@ const docTemplate = `{
                 "content": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.Event"
+                        "$ref": "#/definitions/models.Event"
                     }
                 },
                 "count": {
@@ -550,7 +620,7 @@ const docTemplate = `{
                 "result": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_Web-Engineering-XDU_Project-Backend_app_models.AgentRelation"
+                        "$ref": "#/definitions/models.AgentRelation"
                     }
                 }
             }

@@ -43,6 +43,13 @@ definitions:
         example: Schedule Agent
         type: string
     type: object
+  models.AgentIdAndName:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   models.AgentRelation:
     properties:
       dstAgentId:
@@ -150,6 +157,28 @@ definitions:
       content:
         items:
           $ref: '#/definitions/models.Event'
+        type: array
+      count:
+        type: integer
+      totalCount:
+        type: integer
+    type: object
+  swaggo.GetRelationableAgentsResp:
+    properties:
+      code:
+        example: 200
+        type: integer
+      msg:
+        example: ok
+        type: string
+      result:
+        $ref: '#/definitions/swaggo.GetRelationableAgentsRespResult'
+    type: object
+  swaggo.GetRelationableAgentsRespResult:
+    properties:
+      content:
+        items:
+          $ref: '#/definitions/models.AgentIdAndName'
         type: array
       count:
         type: integer
@@ -417,6 +446,49 @@ paths:
           schema:
             $ref: '#/definitions/swaggo.DryRunResponse'
       summary: Dry run
+      tags:
+      - agents
+  /agent/relationable:
+    get:
+      consumes:
+      - application/json
+      description: List agents available for relation op
+      parameters:
+      - description: agent id
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: keyword (%val%)
+        in: query
+        name: keyword
+        type: string
+      - description: prev or next
+        enum:
+        - prev
+        - next
+        in: query
+        name: type
+        required: true
+        type: string
+      - description: number of agents in a page
+        in: query
+        name: number
+        required: true
+        type: integer
+      - description: page sequence number
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.GetRelationableAgentsResp'
+      summary: List agents available for relation op
       tags:
       - agents
   /event:

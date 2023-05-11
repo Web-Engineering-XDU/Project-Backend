@@ -40,12 +40,12 @@ func (*Agent) TableName() string {
 
 func (u *Agent) ToUpdateMap() map[string]interface{} {
 	return map[string]interface{}{
-		"enable":       u.Enable,
-		"name":         u.Name,
-		"description":  u.Description,
+		"enable":        u.Enable,
+		"name":          u.Name,
+		"description":   u.Description,
 		"event_forever": u.EventForever,
-		"event_max_age":  u.EventMaxAge,
-		"prop_json_str":  u.PropJsonStr,
+		"event_max_age": u.EventMaxAge,
+		"prop_json_str": u.PropJsonStr,
 	}
 }
 
@@ -88,7 +88,7 @@ func DeleteAgentAndRelationsAbout(id int) (bool, error) {
 		}
 		return nil
 	})
-	
+
 	return err == nil, err
 }
 
@@ -118,8 +118,8 @@ func SelectAgentBasicInfoList(limit, offset int) (ret []Agent) {
 func SelectAgentDetailList(limit, offset int) (ret []AgentDetail, totalCount int64) {
 
 	tx := DB().
-	Model(&Agent{}).
-	Select(`agents.id id,
+		Model(&Agent{}).
+		Select(`agents.id id,
 	agents.name name,
 	agents.enable enable,
 	agents.event_forever event_forever,
@@ -130,15 +130,15 @@ func SelectAgentDetailList(limit, offset int) (ret []AgentDetail, totalCount int
 	agent_types.name type_name,
 	agent_types.allow_input allow_input,
 	agent_types.allow_output allow_output`).
-	Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").Count(&totalCount)
+		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").Count(&totalCount)
 
 	if offset+limit < 1 {
 		ret = []AgentDetail{}
 	} else {
 		tx.Limit(limit).Offset(offset).
-		Scan(&ret)
+			Scan(&ret)
 	}
-		
+
 	return ret, totalCount
 }
 
@@ -164,6 +164,41 @@ func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {
 	} else {
 		return ret, false
 	}
+}
+
+type AgentIdAndName struct {
+	Id int
+	Name string
+}
+
+func SelectPrevableAgents(id int, key string, limit, offset int) (ret []AgentIdAndName, totalCount int64, err error) {
+	tx := DB().Model(&Agent{}).
+		Where("agents.id <> ? && allow_output = true && agents.name LIKE ?", id, "%"+key+"%").
+		Select("agents.id, agents.name").
+		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
+		Count(&totalCount)
+	if offset + limit < 1 || totalCount == 0{
+		ret = []AgentIdAndName{}
+	} else {
+		tx.Limit(limit).Offset(offset).Find(&ret)
+	}
+
+	return ret, totalCount, nil
+}
+
+func SelectNextableAgents(id int, key string, limit, offset int) (ret []AgentIdAndName, totalCount int64, err error) {
+	tx := DB().Model(&Agent{}).
+		Where("agents.id <> ? && allow_input = true && agents.name LIKE ?", id, "%"+key+"%").
+		Select("agents.id, agents.name").
+		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
+		Count(&totalCount)
+	if offset + limit < 1 || totalCount == 0{
+		ret = []AgentIdAndName{}
+	} else {
+		tx.Limit(limit).Offset(offset).Find(&ret)
+	}
+
+	return ret, totalCount, nil
 }
 
 func UpdateAgent(agent *Agent) error {

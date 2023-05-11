@@ -333,6 +333,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/agent/relationable": {
+            "get": {
+                "description": "List agents available for relation op",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agents"
+                ],
+                "summary": "List agents available for relation op",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "agent id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "keyword (%val%)",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "prev",
+                            "next"
+                        ],
+                        "type": "string",
+                        "description": "prev or next",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of agents in a page",
+                        "name": "number",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page sequence number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.GetRelationableAgentsResp"
+                        }
+                    }
+                }
+            }
+        },
         "/event": {
             "get": {
                 "description": "get events",
@@ -436,6 +499,17 @@ const docTemplate = `{
                 "typeName": {
                     "type": "string",
                     "example": "Schedule Agent"
+                }
+            }
+        },
+        "models.AgentIdAndName": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -596,6 +670,39 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Event"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "swaggo.GetRelationableAgentsResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "result": {
+                    "$ref": "#/definitions/swaggo.GetRelationableAgentsRespResult"
+                }
+            }
+        },
+        "swaggo.GetRelationableAgentsRespResult": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AgentIdAndName"
                     }
                 },
                 "count": {

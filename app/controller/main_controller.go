@@ -22,6 +22,7 @@ func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Eng
 	agentRouter.POST("",service.UpdateAgent)
 	agentRouter.GET("", service.GetAgentList)
 	agentRouter.POST("/dry-run", service.DryRun)
+	agentRouter.GET("/relationable", service.GetRelationableAgents)
 
 	router.GET("/event", service.GetEventList)
 

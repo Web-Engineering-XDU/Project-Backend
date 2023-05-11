@@ -47,3 +47,14 @@ type DryRunResponse struct {
 	StateInfo
 	Event string `json:"outputEvent"`
 }
+
+type GetRelationableAgentsResp struct {
+	StateInfo
+	Result GetRelationableAgentsRespResult `json:"result"`
+}
+
+type GetRelationableAgentsRespResult struct {
+	Content    []models.AgentIdAndName `json:"content"`
+	Count      int                     `json:"count"`
+	TotalCount int                     `json:"totalCount"`
+}

@@ -48,6 +48,61 @@ func GetAgentList(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), int(totalCount), results)))
 }
 
+type getRelationableAgentsParams struct {
+	ID      int    `form:"id"`
+	Keyword string `form:"keyword"`
+	Type    string `form:"type"`
+	Number  int    `form:"number"`
+	Page    int    `form:"page"`
+}
+
+// @Summary      List agents available for relation op
+// @Description  List agents available for relation op
+// @Tags         agents
+// @Accept       json
+// @Produce      json
+// @Param        id			query	int    true    "agent id"
+// @Param        keyword	query	string false   "keyword (%val%)"
+// @Param        type		query	string true    "prev or next" Enums(prev, next)
+// @Param        number		query	int    true		"number of agents in a page"
+// @Param        page   	query	int    true		"page sequence number"
+// @Success      200  {object}   swaggo.GetRelationableAgentsResp
+// @Router       /agent/relationable [get]
+func GetRelationableAgents(c *gin.Context) {
+	params := &getRelationableAgentsParams{}
+	c.ShouldBind(params)
+
+	var results []models.AgentIdAndName
+	var totalCount int64
+	var err error
+
+	switch params.Type {
+	case "prev":
+		results, totalCount, err = models.SelectPrevableAgents(
+			params.ID,
+			params.Keyword,
+			params.Number,
+			(params.Page-1)*params.Number,
+		)
+	case "next":
+		results, totalCount, err = models.SelectNextableAgents(
+			params.ID,
+			params.Keyword,
+			params.Number,
+			(params.Page-1)*params.Number,
+		)
+	default:
+		c.JSON(http.StatusOK, makeRespBody(400, "unknown relation type", nil))
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusOK, makeRespBody(400, err.Error(), nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), int(totalCount), results)))
+}
+
 // @Summary      New agents
 // @Description  Create new agents. Also support application/json
 // @Tags         agents

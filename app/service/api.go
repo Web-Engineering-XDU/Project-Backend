@@ -272,7 +272,7 @@ func SetAgentRelation(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))
 }
 
-// @Summary      List Relations
+// @Summary      List All Relations
 // @Description  get all relations
 // @Tags         relations
 // @Accept       json
@@ -280,8 +280,45 @@ func SetAgentRelation(c *gin.Context) {
 // @Success      200  {object}   swaggo.GetRelationsResponse
 // @Router       /agent-relation [get]
 func GetAllAgentRelations(c *gin.Context) {
-	result := models.SelectAgentRelationList()
+	result := models.SelectAllAgentRelations()
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(result), len(result), result)))
+}
+
+// @Summary      Get Relations By Agent ID
+// @Description  Get Relations By Agent ID
+// @Tags         relations
+// @Accept       json
+// @Produce      json
+// @Param        id			query	int    false    "src agent id. Don't include in request if you don't specify it"
+// @Success      200  {object}   swaggo.GetRelationsForEditResp
+// @Router       /agent-relation/for-edit [get]
+func GetAgentRelationsForEdit(c *gin.Context) {
+	IdStr, ok := c.GetQuery("id")
+	if !ok {
+		c.JSON(http.StatusOK, makeRespBody(400, "missing param: id", nil))
+		return
+	}
+	ID, err := strconv.Atoi(IdStr)
+	if err != nil {
+		c.JSON(http.StatusOK, makeRespBody(400, "invalid param: id", nil))
+		return
+	}
+	relations := models.SelectAgentRelationsAbout(ID)
+	prevIds := make([]int, 0, 3)
+	nextIds := make([]int, 0, 3)
+	for _, v := range relations {
+		if v.SrcAgentId != ID {
+			prevIds = append(prevIds, v.SrcAgentId)
+		} else {
+			nextIds = append(nextIds, v.DstAgentId)
+		}
+	}
+	prevs := models.SelectAgentIdAndNames(prevIds)
+	nexts := models.SelectAgentIdAndNames(nextIds)
+	c.JSON(http.StatusOK, makeRespBody(200, "ok", map[string]any{
+		"srcs": prevs,
+		"dsts": nexts,
+	}))
 }
 
 type dryRunParams struct {

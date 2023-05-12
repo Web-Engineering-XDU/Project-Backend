@@ -32,8 +32,13 @@ func DeleteAllAgentRelationAbout(id int) error {
 		Delete(&AgentRelation{}).Error
 }
 
-func SelectAgentRelationList() (ret []AgentRelation) {
+func SelectAllAgentRelations() (ret []AgentRelation) {
 	DB().Find(&ret)
+	return ret
+}
+
+func SelectAgentRelationsAbout(id int) (ret []AgentRelation) {
+	DB().Where("src_agent_id = ? OR dst_agent_id = ?", id, id).Find(&ret)
 	return ret
 }
 
@@ -53,7 +58,7 @@ func SetAgentRelation(id int, srcs, dsts []int) error {
 			relations[i] = &AgentRelation{SrcAgentId: id, DstAgentId: dst}
 			i++
 		}
-        err = InsertAgentRelation(relations)
-        return err
+		err = InsertAgentRelation(relations)
+		return err
 	})
 }

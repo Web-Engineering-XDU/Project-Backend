@@ -167,8 +167,22 @@ func SelectAgentDetailByID(id int) (ret AgentDetail, ok bool) {
 }
 
 type AgentIdAndName struct {
-	Id int
+	Id   int
 	Name string
+}
+
+// func (*AgentIdAndName) TableName() string {
+// 	return agentTableName
+// }
+
+func SelectAgentIdAndNames(targets []int) (ret []AgentIdAndName){
+	if len(targets) == 0 {
+		return []AgentIdAndName{}
+	}
+	DB().Model(&Agent{}).
+		Select("id, name").
+		Find(&ret, targets)
+	return ret
 }
 
 func SelectPrevableAgents(id int, key string, limit, offset int) (ret []AgentIdAndName, totalCount int64, err error) {
@@ -177,7 +191,7 @@ func SelectPrevableAgents(id int, key string, limit, offset int) (ret []AgentIdA
 		Select("agents.id, agents.name").
 		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
 		Count(&totalCount)
-	if offset + limit < 1 || totalCount == 0{
+	if offset+limit < 1 || totalCount == 0 {
 		ret = []AgentIdAndName{}
 	} else {
 		tx.Limit(limit).Offset(offset).Find(&ret)
@@ -192,7 +206,7 @@ func SelectNextableAgents(id int, key string, limit, offset int) (ret []AgentIdA
 		Select("agents.id, agents.name").
 		Joins("INNER JOIN agent_types ON agents.type_id = agent_types.id").
 		Count(&totalCount)
-	if offset + limit < 1 || totalCount == 0{
+	if offset+limit < 1 || totalCount == 0 {
 		ret = []AgentIdAndName{}
 	} else {
 		tx.Limit(limit).Offset(offset).Find(&ret)

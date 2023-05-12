@@ -176,6 +176,9 @@ type AgentIdAndName struct {
 // }
 
 func SelectAgentIdAndNames(targets []int) (ret []AgentIdAndName){
+	if len(targets) == 0 {
+		return []AgentIdAndName{}
+	}
 	DB().Model(&Agent{}).
 		Select("id, name").
 		Find(&ret, targets)

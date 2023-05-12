@@ -304,17 +304,17 @@ func GetAgentRelationsForEdit(c *gin.Context) {
 		return
 	}
 	relations := models.SelectAgentRelationsAbout(ID)
-	prevs := make([]models.AgentIdAndName, 0, 3)
-	nexts := make([]models.AgentIdAndName, 0, 3)
+	prevIds := make([]int, 0, 3)
+	nextIds := make([]int, 0, 3)
 	for _, v := range relations {
 		if v.SrcAgentId != ID {
-			prevs = append(prevs, models.AgentIdAndName{Id: v.SrcAgentId})
+			prevIds = append(prevIds, v.SrcAgentId)
 		} else {
-			nexts = append(nexts, models.AgentIdAndName{Id: v.DstAgentId})
+			nextIds = append(nextIds, v.DstAgentId)
 		}
 	}
-	models.SelectAgentIdAndNames(prevs)
-	models.SelectAgentIdAndNames(nexts)
+	prevs := models.SelectAgentIdAndNames(prevIds)
+	nexts := models.SelectAgentIdAndNames(nextIds)
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", map[string]any{
 		"srcs": prevs,
 		"dsts": nexts,

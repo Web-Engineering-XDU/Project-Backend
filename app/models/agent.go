@@ -175,10 +175,11 @@ type AgentIdAndName struct {
 // 	return agentTableName
 // }
 
-func SelectAgentIdAndNames(targets []AgentIdAndName) {
+func SelectAgentIdAndNames(targets []int) (ret []AgentIdAndName){
 	DB().Model(&Agent{}).
 		Select("id, name").
-		Find(&targets)
+		Find(&ret, targets)
+	return ret
 }
 
 func SelectPrevableAgents(id int, key string, limit, offset int) (ret []AgentIdAndName, totalCount int64, err error) {

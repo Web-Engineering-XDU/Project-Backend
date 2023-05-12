@@ -256,7 +256,7 @@ const docTemplate = `{
                 "tags": [
                     "relations"
                 ],
-                "summary": "List Relations",
+                "summary": "List All Relations",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -294,6 +294,37 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/swaggo.GetEventListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/agent-relation/for-edit": {
+            "get": {
+                "description": "Get Relations By Agent ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "relations"
+                ],
+                "summary": "Get Relations By Agent ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "src agent id. Don't include in request if you don't specify it",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/swaggo.GetRelationsForEditResp"
                         }
                     }
                 }
@@ -710,6 +741,36 @@ const docTemplate = `{
                 },
                 "totalCount": {
                     "type": "integer"
+                }
+            }
+        },
+        "swaggo.GetRelationsForEditResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "result": {
+                    "type": "object",
+                    "properties": {
+                        "dsts": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AgentIdAndName"
+                            }
+                        },
+                        "srcs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AgentIdAndName"
+                            }
+                        }
+                    }
                 }
             }
         },

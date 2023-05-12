@@ -185,6 +185,26 @@ definitions:
       totalCount:
         type: integer
     type: object
+  swaggo.GetRelationsForEditResp:
+    properties:
+      code:
+        example: 200
+        type: integer
+      msg:
+        example: ok
+        type: string
+      result:
+        properties:
+          dsts:
+            items:
+              $ref: '#/definitions/models.AgentIdAndName'
+            type: array
+          srcs:
+            items:
+              $ref: '#/definitions/models.AgentIdAndName'
+            type: array
+        type: object
+    type: object
   swaggo.GetRelationsResponse:
     properties:
       code:
@@ -402,7 +422,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/swaggo.GetRelationsResponse'
-      summary: List Relations
+      summary: List All Relations
       tags:
       - relations
     post:
@@ -424,6 +444,26 @@ paths:
           schema:
             $ref: '#/definitions/swaggo.GetEventListResponse'
       summary: Set Agent Relations
+      tags:
+      - relations
+  /agent-relation/for-edit:
+    get:
+      consumes:
+      - application/json
+      description: Get Relations By Agent ID
+      parameters:
+      - description: src agent id. Don't include in request if you don't specify it
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/swaggo.GetRelationsForEditResp'
+      summary: Get Relations By Agent ID
       tags:
       - relations
   /agent/dry-run:

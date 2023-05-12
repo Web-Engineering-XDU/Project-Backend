@@ -34,7 +34,7 @@ func (ac *AgentCollection) init() error {
 	}
 
 	agents := models.SelectAgentRuntimeList()
-	relations := models.SelectAgentRelationList()
+	relations := models.SelectAllAgentRelations()
 
 	schedule_agents := make([]*Agent, 0, 10)
 
@@ -48,7 +48,7 @@ func (ac *AgentCollection) init() error {
 				SrcAgentId:       make([]int, 0, 2),
 				DstAgentId:       make([]int, 0, 2),
 				EventForever:     v.EventForever,
-				EventMaxAge:      time.Duration(v.EventMaxAge) ,
+				EventMaxAge:      time.Duration(v.EventMaxAge),
 			},
 			ac:    ac,
 			Ctx:   ac.ctx,

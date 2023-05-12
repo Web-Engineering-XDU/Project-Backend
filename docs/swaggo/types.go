@@ -58,3 +58,11 @@ type GetRelationableAgentsRespResult struct {
 	Count      int                     `json:"count"`
 	TotalCount int                     `json:"totalCount"`
 }
+
+type GetRelationsForEditResp struct {
+	StateInfo
+	Result struct {
+		Src []models.AgentIdAndName `json:"srcs"`
+		Dst []models.AgentIdAndName `json:"dsts"`
+	} `json:"result"`
+}

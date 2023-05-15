@@ -45,7 +45,7 @@ type GetRelationsResponse struct {
 
 type DryRunResponse struct {
 	StateInfo
-	Event string `json:"outputEvent"`
+	Result []map[string]string `json:"result"`
 }
 
 type GetRelationableAgentsResp struct {

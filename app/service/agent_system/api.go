@@ -146,7 +146,7 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 	return nil
 }
 
-func DryRunAgent(a *models.Agent, msg Message) (Message, error){
+func DryRunAgent(a *models.Agent, msg Message) ([]*Message, error){
 	if a.TypeId != HttpAgentId {
 		return nil, errors.New("this agent type cannot dry run")
 	}
@@ -162,14 +162,18 @@ func DryRunAgent(a *models.Agent, msg Message) (Message, error){
 	if err != nil {
 		return nil, err
 	}
-	var event *Event
-	agent.Run(agent.Ctx, agent, &Event{Msg: msg}, func(e *Event) {
+	var event []*Event
+	agent.Run(agent.Ctx, agent, &Event{Msg: msg}, func(e []*Event) {
 		event = e
 	})
-	if event.MetError {
-		return nil, errors.New(event.Log)
+	msgs := make([]*Message, len(event))
+	for i, v := range event {
+		if v.MetError {
+			return nil, errors.New(v.Log)
+		}
+		msgs[i]=&v.Msg
 	}
-	return event.Msg, nil
+	return msgs, nil
 }
 
 func DeleteAgent() {}

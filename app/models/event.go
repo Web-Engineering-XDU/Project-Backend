@@ -29,25 +29,50 @@ func SelectHashCount(hash string, id int) (ret int64) {
 	return ret
 }
 
-func SelectEventList(limit, offset int) (ret []Event, totalCount int64) {
+type EventAndSrcAgentName struct{
+	Event
+	SrcAgentName string `json:"srcAgentName"`
+}
+
+func SelectEventList(limit, offset int) (ret []EventAndSrcAgentName, totalCount int64) {
 	tx := DB().Model(&Event{}).
 		Order("create_at desc").Count(&totalCount)
 	if offset+limit < 1 {
-		ret = []Event{}
+		ret = []EventAndSrcAgentName{}
 	} else {
-		tx.Limit(limit).Offset(offset).Find(&ret)
+		tx.Select(`events.id id,
+		events.src_agent_id src_agent_id,
+		events.json_str json_str,
+		events.content_hash content_hash,
+		events.error error
+		events.log log
+		events.create_at create_at
+		events.delete_at delete_at
+		agents.name src_agent_name`).
+		Joins("INNER JOIN agents ON agents.id = event.src_agent_id").
+		Limit(limit).Offset(offset).Find(&ret)
 	}
 	return ret, totalCount
 }
 
-func SelectEventListByAgentID(id, limit, offset int) (ret []Event, totalCount int64) {
+func SelectEventListByAgentID(id, limit, offset int) (ret []EventAndSrcAgentName, totalCount int64) {
 	tx := DB().Model(&Event{}).
 		Where("src_agent_id = ?", id).
 		Order("create_at desc").Count(&totalCount)
 	if offset+limit < 1 {
-		ret =  []Event{}
+		ret =  []EventAndSrcAgentName{}
 	} else {
-		tx.Limit(limit).Offset(offset).Find(&ret)
+		tx.Select(`events.id id,
+		events.src_agent_id src_agent_id,
+		events.json_str json_str,
+		events.content_hash content_hash,
+		events.error error
+		events.log log
+		events.create_at create_at
+		events.delete_at delete_at
+		agents.name src_agent_name`).
+		Joins("INNER JOIN agents ON agents.id = event.src_agent_id").
+		Limit(limit).Offset(offset).Find(&ret)
 	}
 	return ret, totalCount
 }

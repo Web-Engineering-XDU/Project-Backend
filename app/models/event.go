@@ -49,7 +49,7 @@ func SelectEventList(limit, offset int) (ret []EventAndSrcAgentName, totalCount 
 		events.create_at create_at,
 		events.delete_at delete_at,
 		agents.name src_agent_name`).
-		Joins("INNER JOIN agents ON agents.id = event.src_agent_id").
+		Joins("INNER JOIN agents ON agents.id = events.src_agent_id").
 		Limit(limit).Offset(offset).Find(&ret)
 	}
 	return ret, totalCount
@@ -71,7 +71,7 @@ func SelectEventListByAgentID(id, limit, offset int) (ret []EventAndSrcAgentName
 		events.create_at create_at,
 		events.delete_at delete_at,
 		agents.name src_agent_name`).
-		Joins("INNER JOIN agents ON agents.id = event.src_agent_id").
+		Joins("INNER JOIN agents ON agents.id = events.src_agent_id").
 		Limit(limit).Offset(offset).Find(&ret)
 	}
 	return ret, totalCount

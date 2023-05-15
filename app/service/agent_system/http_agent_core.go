@@ -165,7 +165,8 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 			handleRunError(newEvent, err, callBack)
 			return
 		}
-		for _, v := range resultMap {
+		results := make([]*Event, len(resultMap))
+		for i, v := range resultMap {
 			bindings := deepcopy.Copy(v).(map[string]string)
 			mergeMap(bindings, event.Msg)
 			err = renderTemplate(temp, bindings)
@@ -177,16 +178,14 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 			if mergeEvent {
 				mergeMap(temp, event.Msg)
 			}
-			callBack([]*Event{
-				{
+			results[i] = &Event{
 					CreateTime: newEvent.CreateTime,
 					DeleteTime: newEvent.DeleteTime,
 					Msg:           temp,
 					ToBeDelivered: true,
-				},
-			})
+			}
 		}
-
+		callBack(results)
 	}
 }
 

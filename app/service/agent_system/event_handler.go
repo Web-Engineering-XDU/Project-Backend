@@ -11,13 +11,13 @@ import (
 )
 
 type eventHandler struct {
-	eventChan chan *Event
+	eventChan chan []*Event
 	agents    *AgentCollection
 }
 
 func NewEventHandler() eventHandler {
 	return eventHandler{
-		eventChan: make(chan *Event, 100),
+		eventChan: make(chan []*Event, 100),
 	}
 }
 
@@ -25,62 +25,63 @@ func (eventHdl *eventHandler) run() {
 	for i := 0; i < 10; i++ {
 		go func() {
 			json := jsoniter.ConfigFastest
-			var event *Event
+			var events []*Event
 			for {
 				var err error
-				event = <-eventHdl.eventChan
-
-				_, ok := eventHdl.agents.agentMap[event.SrcAgent.ID]
-				if !ok {
-					continue
-				}
-
-				if event.SrcAgent.EventMaxAge != 0 || event.SrcAgent.EventForever{
-					jsonStr := ""
-					log := ""
-					if event.MetError {
-						log = event.Log
-						event.ToBeDelivered = false
-					} else {
-						jsonStr, err = json.MarshalToString(event.Msg)
-						if err != nil {
-							panic(err)
+				events = <-eventHdl.eventChan
+				for _, event := range events {
+					_, ok := eventHdl.agents.agentMap[event.SrcAgent.ID]
+					if !ok {
+						continue
+					}
+	
+					if event.SrcAgent.EventMaxAge != 0 || event.SrcAgent.EventForever{
+						jsonStr := ""
+						log := ""
+						if event.MetError {
+							log = event.Log
+							event.ToBeDelivered = false
+						} else {
+							jsonStr, err = json.MarshalToString(event.Msg)
+							if err != nil {
+								panic(err)
+							}
+						}
+						event.Msg["$"] = fmt.Sprint(event.SrcAgent.ID)
+						eventHash := HashMapString(event.Msg)
+						if models.SelectHashCount(eventHash, event.SrcAgent.ID) > 0 && event.SrcAgent.IgnoreDuplicateEvent() {
+							event.ToBeDelivered = false
+						} else {
+							err = models.InsertEvent(&models.Event{
+								SrcAgentId:  event.SrcAgent.ID,
+								JsonStr:     jsonStr,
+								ContentHash: eventHash,
+								Error:       event.MetError,
+								Log:         log,
+								CreateAt:    event.CreateTime,
+								DeleteAt:    event.DeleteTime,
+							})
+							if err != nil {
+								panic(err)
+							}
 						}
 					}
-					event.Msg["$"] = fmt.Sprint(event.SrcAgent.ID)
-					eventHash := HashMapString(event.Msg)
-					if models.SelectHashCount(eventHash, event.SrcAgent.ID) > 0 && event.SrcAgent.IgnoreDuplicateEvent() {
-						event.ToBeDelivered = false
-					} else {
-						err = models.InsertEvent(&models.Event{
-							SrcAgentId:  event.SrcAgent.ID,
-							JsonStr:     jsonStr,
-							ContentHash: eventHash,
-							Error:       event.MetError,
-							Log:         log,
-							CreateAt:    event.CreateTime,
-							DeleteAt:    event.DeleteTime,
-						})
-						if err != nil {
-							panic(err)
-						}
+					if !event.ToBeDelivered {
+						continue
 					}
+					fmt.Println(event)
+					event.SrcAgent.Mutex.RLock()
+					for _, v := range event.SrcAgent.DstAgentId {
+						go eventHdl.agents.NextAgentDo(v, event)
+					}
+					event.SrcAgent.Mutex.RUnlock()
 				}
-				if !event.ToBeDelivered {
-					continue
-				}
-				fmt.Println(event)
-				event.SrcAgent.Mutex.RLock()
-				for _, v := range event.SrcAgent.DstAgentId {
-					go eventHdl.agents.NextAgentDo(v, event)
-				}
-				event.SrcAgent.Mutex.RUnlock()
 			}
 		}()
 	}
 }
 
-func (eventHdl *eventHandler) PushEvent(e *Event) {
+func (eventHdl *eventHandler) PushEvent(e []*Event) {
 	eventHdl.eventChan <- e
 }
 

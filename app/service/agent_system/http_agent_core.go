@@ -101,7 +101,7 @@ func (a *Agent) loadHttpAgentCore() error {
 	return nil
 }
 
-func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
+func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e []*Event)) {
 	deleteTime := time.Now().Add(agent.EventMaxAge)
 	if agent.EventForever {
 		deleteTime = time.Now().AddDate(100, 0, 0)
@@ -122,7 +122,7 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 
 	err := httpReqTemp.render(event.Msg)
 	if err != nil {
-		handleRunError(newEvent ,err, callBack)
+		handleRunError(newEvent, err, callBack)
 		return
 	}
 
@@ -142,7 +142,7 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 		req.SetRequestURI(v)
 		err = fasthttp.Do(req, resp)
 		if err != nil {
-			handleRunError(newEvent ,err, callBack)
+			handleRunError(newEvent, err, callBack)
 			return
 		}
 
@@ -157,44 +157,47 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 		case "text":
 			err = selectText(resp.Body(), selectors, &resultMap)
 		default:
-			handleRunError(newEvent ,errors.New("unsupported doc type: " + docType), callBack)
+			handleRunError(newEvent, errors.New("unsupported doc type: "+docType), callBack)
 			return
 		}
 
 		if err != nil {
-			handleRunError(newEvent ,err, callBack)
+			handleRunError(newEvent, err, callBack)
 			return
 		}
-
 		for _, v := range resultMap {
 			bindings := deepcopy.Copy(v).(map[string]string)
 			mergeMap(bindings, event.Msg)
 			err = renderTemplate(temp, bindings)
 			if err != nil {
-				handleRunError(newEvent ,err, callBack)
+				handleRunError(newEvent, err, callBack)
 				return
 			}
 			mergeMap(temp, v)
 			if mergeEvent {
 				mergeMap(temp, event.Msg)
 			}
-			callBack(&Event{
-				Msg:           temp,
-				ToBeDelivered: true,
+			callBack([]*Event{
+				{
+					CreateTime: newEvent.CreateTime,
+					DeleteTime: newEvent.DeleteTime,
+					Msg:           temp,
+					ToBeDelivered: true,
+				},
 			})
 		}
 
 	}
 }
 
-func handleRunError(newEvent *Event ,err error, callBack func(e *Event)) {
+func handleRunError(newEvent *Event, err error, callBack func(e []*Event)) {
 	if newEvent == nil {
 		return
 	}
 	newEvent.MetError = true
 	newEvent.ToBeDelivered = false
 	newEvent.Log = err.Error()
-	callBack(newEvent)
+	callBack([]*Event{newEvent})
 }
 
 func (hac *httpAgentCore) Stop() {

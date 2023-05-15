@@ -49,7 +49,7 @@ type AgentInfo struct {
 }
 
 type AgentCore interface {
-    Run(context.Context, *Agent, *Event, func(e *Event))
+    Run(context.Context, *Agent, *Event, func(e []*Event))
     Stop()
     IgnoreDuplicateEvent() bool
     ValidCheck() error

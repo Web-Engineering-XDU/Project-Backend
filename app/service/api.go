@@ -222,7 +222,7 @@ func GetEventList(c *gin.Context) {
 	params := &getListParams{}
 	c.ShouldBind(params)
 
-	var results []models.Event
+	var results []models.EventAndSrcAgentName
 	var totalCount int64
 
 	if params.ID == 0 {
@@ -236,7 +236,7 @@ func GetEventList(c *gin.Context) {
 			params.Number,
 			(params.Page-1)*params.Number,
 		)
-		results = append([]models.Event{}, results...)
+		results = append([]models.EventAndSrcAgentName{}, results...)
 	}
 
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), int(totalCount), results)))

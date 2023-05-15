@@ -179,10 +179,11 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 				mergeMap(temp, event.Msg)
 			}
 			results[i] = &Event{
-					CreateTime: newEvent.CreateTime,
-					DeleteTime: newEvent.DeleteTime,
-					Msg:           temp,
-					ToBeDelivered: true,
+				SrcAgent:      newEvent.SrcAgent,
+				CreateTime:    newEvent.CreateTime,
+				DeleteTime:    newEvent.DeleteTime,
+				Msg:           temp,
+				ToBeDelivered: true,
 			}
 		}
 		callBack(results)

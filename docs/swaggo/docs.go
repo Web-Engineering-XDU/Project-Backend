@@ -640,8 +640,14 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ok"
                 },
-                "outputEvent": {
-                    "type": "string"
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },

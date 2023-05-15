@@ -116,8 +116,12 @@ definitions:
       msg:
         example: ok
         type: string
-      outputEvent:
-        type: string
+      result:
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
     type: object
   swaggo.GetAgentListResponse:
     properties:

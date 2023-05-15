@@ -30,6 +30,8 @@ func (eventHdl *eventHandler) run() {
 				var err error
 				events = <-eventHdl.eventChan
 				for _, event := range events {
+					fmt.Println(eventHdl.agents.agentMap)
+					fmt.Println(event.SrcAgent.ID)
 					_, ok := eventHdl.agents.agentMap[event.SrcAgent.ID]
 					if !ok {
 						continue

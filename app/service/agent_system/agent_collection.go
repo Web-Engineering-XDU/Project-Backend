@@ -65,8 +65,15 @@ func (ac *AgentCollection) init() error {
 	}
 
 	for _, v := range relations {
-		ac.agentMap[v.SrcAgentId].DstAgentId = append(ac.agentMap[v.SrcAgentId].DstAgentId, v.DstAgentId)
-		ac.agentMap[v.DstAgentId].SrcAgentId = append(ac.agentMap[v.DstAgentId].SrcAgentId, v.SrcAgentId)
+		//TODO
+		_, ok := ac.agentMap[v.SrcAgentId]
+		if ok {
+			ac.agentMap[v.SrcAgentId].DstAgentId = append(ac.agentMap[v.SrcAgentId].DstAgentId, v.DstAgentId)
+		}
+		_, ok = ac.agentMap[v.DstAgentId]
+		if ok {
+			ac.agentMap[v.DstAgentId].SrcAgentId = append(ac.agentMap[v.DstAgentId].SrcAgentId, v.SrcAgentId)
+		}
 	}
 
 	for _, v := range schedule_agents {

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/config"
-	. "github.com/gorilla/feeds"
+	"github.com/gorilla/feeds"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -23,15 +23,24 @@ func (a *Agent) loadRssAgentCore() error {
 
 func (pac *RssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
 	now := time.Now()
-	feed := &Feed{
+	feed := &feeds.Feed{
 		Title:       "Huggo event ",
+		Link:        &feeds.Link{Href: "https://example.com/rss"},
 		Description: "discussion about tech, footie, photos",
-		Author:      &Author{Name: "Jason Moiron", Email: "jmoiron@jmoiron.net"},
+		Author:      &feeds.Author{Name: "Jason Moiron", Email: "jmoiron@jmoiron.net"},
 		Updated:     now,
+		Created:     time.Time{},
+		Id:          "",
+		Subtitle:    "",
+		Items:       []*feeds.Item{},
+		Copyright:   "",
+		Image:       &feeds.Image{},
 	}
-	feed.Items = []*Item{
+	feed.Items = []*feeds.Item{
 		{
-			Title:       `${agent.ID} Recive Event from ${event.SrcAgent.ID}", , event.Msg, `,
+			Title: `${agent.ID} Recive Event from ${event.SrcAgent.ID}", , event.Msg, `,
+			Link:  &feeds.Link{Href: "https://example.com/rss"},
+
 			Description: `${event.Msg}`,
 			Created:     now,
 		},

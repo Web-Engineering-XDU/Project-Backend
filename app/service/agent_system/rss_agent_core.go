@@ -103,6 +103,9 @@ func (rac *rssAgentCore) loadRssFile(a *Agent) {
 			}
 		}
 	}
+	if !a.Enable {
+		a.Stop()
+	}
 	a.Mutex.Unlock()
 }
 

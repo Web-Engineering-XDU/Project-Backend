@@ -1,82 +1,160 @@
 package agentsystem
 
 import (
+	"bytes"
 	"context"
-	"log"
+	"fmt"
 	"os"
-	"path/filepath"
+	"sort"
 	"time"
 
-	"github.com/Web-Engineering-XDU/Project-Backend/config"
 	"github.com/gorilla/feeds"
-	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/mmcdole/gofeed"
 )
 
-type RssAgentCore struct {
+type rssItemTemplate struct {
+	Title       string
+	Link        string
+	Description string
+	Author      string
+}
+
+func (item rssItemTemplate) render(bindings map[string]string) *rssItemTemplate {
+	var err error
+	res := make(map[string]interface{}, len(bindings))
+	for k, v := range bindings {
+		res[k] = v
+	}
+	item.Title, err = engine.ParseAndRenderString(item.Title, res)
+	if err != nil {
+		panic(err)
+	}
+	item.Link, err = engine.ParseAndRenderString(item.Link, res)
+	if err != nil {
+		panic(err)
+	}
+	item.Description, err = engine.ParseAndRenderString(item.Description, res)
+	if err != nil {
+		panic(err)
+	}
+	item.Author, err = engine.ParseAndRenderString(item.Author, res)
+	if err != nil {
+		panic(err)
+	}
+	return &item
+}
+
+type rssAgentCore struct {
+	Title       string
+	Link        string
+	Description string
+	Author      string
+	Template    rssItemTemplate
+
+	file *os.File
+	feed *feeds.Feed
 }
 
 func (a *Agent) loadRssAgentCore() error {
-	core := &RssAgentCore{}
+	core := &rssAgentCore{}
+	err := json.UnmarshalFromString(a.AgentCoreJsonStr, core)
+	if err != nil {
+		return err
+	}
 	a.AgentCore = core
 	return nil
 }
 
-func (pac *RssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
-	now := time.Now()
-	feed := &feeds.Feed{
-		Title:       "Huggo event ",
-		Link:        &feeds.Link{Href: "https://example.com/rss"},
-		Description: "discussion about tech, footie, photos",
-		Author:      &feeds.Author{Name: "Jason Moiron", Email: "jmoiron@jmoiron.net"},
-		Updated:     now,
-		Created:     time.Time{},
-		Id:          "",
-		Subtitle:    "",
-		Items:       []*feeds.Item{},
-		Copyright:   "",
-		Image:       &feeds.Image{},
+func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e []*Event)) {
+	var err error
+	agent.Mutex.Lock()
+	if rac.file == nil {
+		err = os.Mkdir("./rss", 0777)
+		if err != nil && !os.IsExist(err) {
+			panic(err)
+		}
+		rac.file, err = os.OpenFile(fmt.Sprintf("./rss/%v.xml", agent.ID), os.O_RDWR|os.O_CREATE, 0777)
+		if err != nil {
+			panic(err)
+		}
 	}
-	feed.Items = []*feeds.Item{
-		{
-			Title: `${agent.ID} Recive Event from ${event.SrcAgent.ID}", , event.Msg, `,
-			Link:  &feeds.Link{Href: "https://example.com/rss"},
-
-			Description: `${event.Msg}`,
-			Created:     now,
-		},
+	if rac.feed == nil {
+		fileInfo, err := rac.file.Stat()
+		if err != nil {
+			panic(err)
+		}
+		content := make([]byte, fileInfo.Size())
+		_, err = rac.file.Read(content)
+		if err != nil {
+			panic(err)
+		}
+		rac.feed = &feeds.Feed{
+			Title:       rac.Title,
+			Link:        &feeds.Link{Href: rac.Link},
+			Description: rac.Description,
+			Author:      &feeds.Author{Name: rac.Author},
+		}
+		buffer := bytes.NewBuffer(content)
+		feed, err := gofeed.NewParser().Parse(buffer)
+		if err != nil {
+			rac.feed.Created = time.Now()
+			rac.feed.Items = []*feeds.Item{}
+		} else {
+			rac.feed.Created = (*feed.PublishedParsed).Local()
+			rac.feed.Items = make([]*feeds.Item, 0, len(feed.Items))		
+			for _, v := range feed.Items {
+				rac.feed.Items = append(rac.feed.Items, &feeds.Item{
+					Title:       v.Title,
+					Link:        &feeds.Link{Href: v.Link},
+					Description: v.Description,
+					Author:      &feeds.Author{Name: v.Author.Name},
+					Created:     (*v.PublishedParsed).Local(),
+				})
+			}
+		}
 	}
+	agent.Mutex.Unlock()
 
-	// TODO: Need better way to read the config.
-	ex, err := os.Executable()
+	newItem := rac.Template.render(event.Msg)
+
+	agent.Mutex.Lock()
+	rac.feed.Items = append(rac.feed.Items, &feeds.Item{
+		Title:       newItem.Title,
+		Link:        &feeds.Link{Href: newItem.Link},
+		Description: newItem.Description,
+		Author:      &feeds.Author{Name: newItem.Author},
+		Created:     time.Now(),
+	})
+	sort.Slice(rac.feed.Items, func(i, j int) bool {
+		return rac.feed.Items[i].Created.After(rac.feed.Items[j].Created)
+	})
+	agent.Mutex.Unlock()
+
+	rss, err := rac.feed.ToRss()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-
-	var config config.Config
-	err = cleanenv.ReadConfig(filepath.Dir(ex)+"/config.yml", &config)
+	err = rac.file.Truncate(int64(len(rss)))
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-
-	// TODO:
-	newFile, err := os.Create(config.RssPath.Path + "index.xml")
+	_, err = rac.file.WriteAt([]byte(rss), 0)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-
-	feed.WriteRss(newFile)
-
-	newFile.Close()
-
-	//fmt.Printf("%v Recive Event: %v from %v\n", agent.ID, event.Msg, event.SrcAgent.ID)
 }
 
-func (*RssAgentCore) Stop() {}
+func (rac *rssAgentCore) Stop() {
+	if rac.file != nil {
+		rac.file.Close()
+	}
+	rac.feed = nil
+}
 
-func (*RssAgentCore) IgnoreDuplicateEvent() bool {
+func (*rssAgentCore) IgnoreDuplicateEvent() bool {
 	return true
 }
 
-func (*RssAgentCore) ValidCheck() error {
+func (*rssAgentCore) ValidCheck() error {
 	return nil
 }

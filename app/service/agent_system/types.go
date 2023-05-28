@@ -50,10 +50,10 @@ type AgentInfo struct {
 }
 
 type AgentCore interface {
-    Run(context.Context, *Agent, *Event, func(e []*Event))
-    Stop()
-    IgnoreDuplicateEvent() bool
-    ValidCheck() error
+	Run(context.Context, *Agent, *Event, func(e []*Event))
+	Stop()
+	IgnoreDuplicateEvent() bool
+	ValidCheck() error
 }
 
 type Agent struct {
@@ -68,7 +68,7 @@ type Agent struct {
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-func (a *Agent) loadCore() error {
+func (a *Agent) LoadCore() error {
 	var err error
 	switch a.TypeId {
 	case ScheduleAgentId:
@@ -78,7 +78,7 @@ func (a *Agent) loadCore() error {
 	case HttpAgentId:
 		err = a.loadHttpAgentCore()
 	case RssAgentId:
-		err = a.loadHttpAgentCore()
+		err = a.loadRssAgentCore()
 	default:
 		err = errors.New("unkonw agent core")
 	}

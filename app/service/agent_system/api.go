@@ -35,7 +35,7 @@ func (ac *AgentCollection) AddAgent(a *models.Agent) error {
 		Ctx:   ac.ctx,
 		Mutex: sync.RWMutex{},
 	}
-	err := agent.loadCore()
+	err := agent.LoadCore()
 	if err != nil {
 		return err
 	}
@@ -76,20 +76,20 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 	if !ok {
 		return errors.New("agent with this id does not exist in runtime")
 	}
-	
+
 	a.TypeId = agent.TypeId
 	tempAgent := &Agent{
 		AgentInfo: AgentInfo{
 			TypeId:           a.TypeId,
 			AgentCoreJsonStr: a.PropJsonStr,
 		},
-		ac:    ac,
+		ac: ac,
 	}
 
 	coreChanged := agent.AgentCoreJsonStr != a.PropJsonStr
 
 	if coreChanged {
-		err = tempAgent.loadCore()
+		err = tempAgent.LoadCore()
 		if err != nil {
 			return err
 		}
@@ -110,12 +110,12 @@ func (ac *AgentCollection) UpdateAgent(a models.Agent) error {
 			agent.Stop()
 		}
 		agent.AgentCore = tempAgent.AgentCore
-		if a.Enable && a.TypeId == ScheduleAgentId{
+		if a.Enable && a.TypeId == ScheduleAgentId {
 			go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 		}
 	} else {
 		if agent.Enable != a.Enable {
-			if a.Enable && a.TypeId == ScheduleAgentId{
+			if a.Enable && a.TypeId == ScheduleAgentId {
 				go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 			} else {
 				agent.Stop()
@@ -146,7 +146,7 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 	return nil
 }
 
-func DryRunAgent(a *models.Agent, msg Message) ([]*Message, error){
+func DryRunAgent(a *models.Agent, msg Message) ([]*Message, error) {
 	if a.TypeId != HttpAgentId {
 		return nil, errors.New("this agent type cannot dry run")
 	}
@@ -158,7 +158,7 @@ func DryRunAgent(a *models.Agent, msg Message) ([]*Message, error){
 		Ctx:   context.Background(),
 		Mutex: sync.RWMutex{},
 	}
-	err := agent.loadCore()
+	err := agent.LoadCore()
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func DryRunAgent(a *models.Agent, msg Message) ([]*Message, error){
 		if v.MetError {
 			return nil, errors.New(v.Log)
 		}
-		msgs[i]=&v.Msg
+		msgs[i] = &v.Msg
 	}
 	return msgs, nil
 }

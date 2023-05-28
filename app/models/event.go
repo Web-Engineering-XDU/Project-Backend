@@ -25,7 +25,7 @@ func InsertEvent(event *Event) error {
 }
 
 func SelectHashCount(hash string, id int) (ret int64) {
-	DB().Where("content_hash = ? AND src_agent_id = ?", hash, id).Count(&ret)
+	DB().Model(&Event{}).Where("content_hash = ? AND src_agent_id = ?", hash, id).Count(&ret)
 	return ret
 }
 

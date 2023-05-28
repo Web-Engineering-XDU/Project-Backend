@@ -1,14 +1,17 @@
 package controller
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/Web-Engineering-XDU/Project-Backend/app/service"
 	agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 
+	"github.com/swaggo/files"       // swagger embed files
 	"github.com/swaggo/gin-swagger" // gin-swagger middleware
-    "github.com/swaggo/files" // swagger embed files
 )
 
 func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Engine {
@@ -29,6 +32,12 @@ func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Eng
 	router.GET("/agent-relation", service.GetAllAgentRelations)
 	router.POST("/agent-relation", service.SetAgentRelation)
 	router.GET("/agent-relation/for-edit", service.GetAgentRelationsForEdit)
+
+	ex, err := os.Executable()
+    if err != nil {
+        panic(err)
+    }
+	router.Static("/static/rss", filepath.Dir(ex)+"/rss")
 
 	//TODO
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -54,7 +54,7 @@ func (ac *AgentCollection) init() error {
 			Ctx:   ac.ctx,
 			Mutex: sync.RWMutex{},
 		}
-		err := ac.agentMap[v.ID].loadCore()
+		err := ac.agentMap[v.ID].LoadCore()
 		if err != nil {
 			//TODO
 			panic(err)

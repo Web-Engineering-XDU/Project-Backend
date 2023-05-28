@@ -55,25 +55,15 @@ type rssAgentCore struct {
 	feed *feeds.Feed
 }
 
-func (a *Agent) loadRssAgentCore() error {
-	core := &rssAgentCore{}
-	err := json.UnmarshalFromString(a.AgentCoreJsonStr, core)
-	if err != nil {
-		return err
-	}
-	a.AgentCore = core
-	return nil
-}
-
-func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e []*Event)) {
+func (rac *rssAgentCore) loadRssFile(a *Agent) {
 	var err error
-	agent.Mutex.Lock()
+	a.Mutex.Lock()
 	if rac.file == nil {
 		err = os.Mkdir("./rss", 0777)
 		if err != nil && !os.IsExist(err) {
 			panic(err)
 		}
-		rac.file, err = os.OpenFile(fmt.Sprintf("./rss/%v.xml", agent.ID), os.O_RDWR|os.O_CREATE, 0777)
+		rac.file, err = os.OpenFile(fmt.Sprintf("./rss/%v.xml", a.ID), os.O_RDWR|os.O_CREATE, 0777)
 		if err != nil {
 			panic(err)
 		}
@@ -101,7 +91,7 @@ func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, ca
 			rac.feed.Items = []*feeds.Item{}
 		} else {
 			rac.feed.Created = (*feed.PublishedParsed).Local()
-			rac.feed.Items = make([]*feeds.Item, 0, len(feed.Items))		
+			rac.feed.Items = make([]*feeds.Item, 0, len(feed.Items))
 			for _, v := range feed.Items {
 				rac.feed.Items = append(rac.feed.Items, &feeds.Item{
 					Title:       v.Title,
@@ -113,8 +103,23 @@ func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, ca
 			}
 		}
 	}
-	agent.Mutex.Unlock()
+	a.Mutex.Unlock()
+}
 
+func (a *Agent) loadRssAgentCore() error {
+	core := &rssAgentCore{}
+	err := json.UnmarshalFromString(a.AgentCoreJsonStr, core)
+	if err != nil {
+		return err
+	}
+	a.AgentCore = core
+	core.loadRssFile(a)
+	return nil
+}
+
+func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e []*Event)) {
+	var err error
+	rac.loadRssFile(agent)
 	newItem := rac.Template.render(event.Msg)
 
 	agent.Mutex.Lock()
@@ -147,6 +152,7 @@ func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, ca
 func (rac *rssAgentCore) Stop() {
 	if rac.file != nil {
 		rac.file.Close()
+		rac.file = nil
 	}
 	rac.feed = nil
 }

@@ -58,7 +58,9 @@ func SetAgentRelation(id int, srcs, dsts []int) error {
 			relations[i] = &AgentRelation{SrcAgentId: id, DstAgentId: dst}
 			i++
 		}
-		err = InsertAgentRelation(relations)
+		if len(relations) > 0 {
+			err = InsertAgentRelation(relations)
+		}
 		return err
 	})
 }

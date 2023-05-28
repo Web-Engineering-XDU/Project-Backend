@@ -25,17 +25,19 @@ func (a *Agent) loadSchduleAgentCore() error {
 	return nil
 }
 
-func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e *Event)) {
+func (sac *scheduleAgentCore) Run(ctx context.Context, agent *Agent, event *Event, callBack func(e []*Event)) {
 	go cronTimer.Run()
 	var err error
 	agent.Mutex.RLock()
 	sac.cronEntryID, err = cronTimer.AddFunc(sac.CronSpec, func() {
-		callBack(&Event{
-			SrcAgent:   agent,
-			CreateTime: time.Now(),
-			DeleteTime: time.Now().Add(agent.EventMaxAge),
-			Msg:        emptyMsg,
-			ToBeDelivered: true,
+		callBack([]*Event{
+			{
+				SrcAgent:      agent,
+				CreateTime:    time.Now(),
+				DeleteTime:    time.Now().Add(agent.EventMaxAge),
+				Msg:           emptyMsg,
+				ToBeDelivered: true,
+			},
 		})
 	})
 	agent.Mutex.RUnlock()
@@ -59,4 +61,3 @@ func (sac *scheduleAgentCore) ValidCheck() error {
 	_, err := p.Parse(sac.CronSpec)
 	return err
 }
-

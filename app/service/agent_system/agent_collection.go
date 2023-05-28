@@ -34,7 +34,7 @@ func (ac *AgentCollection) init() error {
 	}
 
 	agents := models.SelectAgentRuntimeList()
-	relations := models.SelectAgentRelationList()
+	relations := models.SelectAllAgentRelations()
 
 	schedule_agents := make([]*Agent, 0, 10)
 
@@ -48,7 +48,7 @@ func (ac *AgentCollection) init() error {
 				SrcAgentId:       make([]int, 0, 2),
 				DstAgentId:       make([]int, 0, 2),
 				EventForever:     v.EventForever,
-				EventMaxAge:      time.Duration(v.EventMaxAge) ,
+				EventMaxAge:      time.Duration(v.EventMaxAge),
 			},
 			ac:    ac,
 			Ctx:   ac.ctx,
@@ -65,8 +65,15 @@ func (ac *AgentCollection) init() error {
 	}
 
 	for _, v := range relations {
-		ac.agentMap[v.SrcAgentId].DstAgentId = append(ac.agentMap[v.SrcAgentId].DstAgentId, v.DstAgentId)
-		ac.agentMap[v.DstAgentId].SrcAgentId = append(ac.agentMap[v.DstAgentId].SrcAgentId, v.SrcAgentId)
+		//TODO
+		_, ok := ac.agentMap[v.SrcAgentId]
+		if ok {
+			ac.agentMap[v.SrcAgentId].DstAgentId = append(ac.agentMap[v.SrcAgentId].DstAgentId, v.DstAgentId)
+		}
+		_, ok = ac.agentMap[v.DstAgentId]
+		if ok {
+			ac.agentMap[v.DstAgentId].SrcAgentId = append(ac.agentMap[v.DstAgentId].SrcAgentId, v.SrcAgentId)
+		}
 	}
 
 	for _, v := range schedule_agents {

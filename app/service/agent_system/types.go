@@ -50,10 +50,10 @@ type AgentInfo struct {
 }
 
 type AgentCore interface {
-	Run(context.Context, *Agent, *Event, func(e *Event))
-	Stop()
-	IgnoreDuplicateEvent() bool
-	ValidCheck() error
+    Run(context.Context, *Agent, *Event, func(e []*Event))
+    Stop()
+    IgnoreDuplicateEvent() bool
+    ValidCheck() error
 }
 
 type Agent struct {

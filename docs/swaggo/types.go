@@ -45,7 +45,7 @@ type GetRelationsResponse struct {
 
 type DryRunResponse struct {
 	StateInfo
-	Event string `json:"outputEvent"`
+	Result []map[string]string `json:"result"`
 }
 
 type GetRelationableAgentsResp struct {
@@ -57,4 +57,12 @@ type GetRelationableAgentsRespResult struct {
 	Content    []models.AgentIdAndName `json:"content"`
 	Count      int                     `json:"count"`
 	TotalCount int                     `json:"totalCount"`
+}
+
+type GetRelationsForEditResp struct {
+	StateInfo
+	Result struct {
+		Src []models.AgentIdAndName `json:"srcs"`
+		Dst []models.AgentIdAndName `json:"dsts"`
+	} `json:"result"`
 }

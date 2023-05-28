@@ -139,10 +139,48 @@ Response的文档类型，当前支持 json
 }
 ```
 
+## RSS Agent
 
+### Overview
 
+RSS Agent将收到的Event打包进自己的rss feed文件里, 用户可以通过 ``/static/rss/{{agent id}}.xml`` 获取feed
 
+### Private Props
 
+```json
+{
+    "title": "feed标题",
+    "link": "feed链接",
+    "description": "feed简介",
+    "author": "feed管理者",
+    "template": {
+      "title": "{{*item标题}}",
+      "link": "{{*item链接}}",
+      "description": "{{*item简介}}",
+      "author": "{{*item内容原作者}}"
+    }
+  }
+```
+标注" * "的字段支持Liquid语法
+
+使用的rss库暂不支持\<image\>
+
+### Example
+
+```json
+{
+    "title": "personal ht manga collection",
+    "link": "https://xxx.com",
+    "description": "富人玩车, ________",
+    "author": "Nobody hero",
+    "template": {
+      "title": "{{manga_title}}",
+      "link": "{{manga_url}}",
+      "description": "{{manga_des}}",
+      "author": "{{manga_artist}}"
+    }
+  }
+```
 
 # About
 

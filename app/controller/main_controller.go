@@ -2,6 +2,7 @@ package controller
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/Web-Engineering-XDU/Project-Backend/app/service"
 	agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
@@ -36,7 +37,7 @@ func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Eng
     if err != nil {
         panic(err)
     }
-	router.Static("/static/rss", ex+"/rss")
+	router.Static("/static/rss", filepath.Dir(ex)+"/rss")
 
 	//TODO
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

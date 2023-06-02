@@ -37,5 +37,5 @@ func (huggo *Huggo) Run(port string) {
 	if err != nil {
 		panic(err)
 	}
-	huggo.ginServer.RunTLS(":8848", filepath.Dir(ex)+"/spm.guchen.work_bundle.crt", filepath.Dir(ex)+"/spm.guchen.work.key")
+	huggo.ginServer.RunTLS(port, filepath.Dir(ex)+"/spm.guchen.work_bundle.crt", filepath.Dir(ex)+"/spm.guchen.work.key")
 }

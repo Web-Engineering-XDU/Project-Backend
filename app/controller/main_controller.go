@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Web-Engineering-XDU/Project-Backend/app/middleware"
 	"github.com/Web-Engineering-XDU/Project-Backend/app/service"
 	agentsystem "github.com/Web-Engineering-XDU/Project-Backend/app/service/agent_system"
 
@@ -15,10 +16,12 @@ import (
 )
 
 func SetController(router *gin.Engine, ac *agentsystem.AgentCollection) *gin.Engine {
+	router.Use(middleware.Https)
 	router.Use(cors.Default())
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set("agents", ac)
 	})
+	
 	agentRouter := router.Group("/agent")
 	agentRouter.PUT("", service.NewAgent)
 	agentRouter.DELETE("", service.DeleteAgent)

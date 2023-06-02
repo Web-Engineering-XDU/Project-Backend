@@ -28,7 +28,7 @@ type Config struct {
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      huggo.guchen.work:8080
+// @host      spm.guchen.work:8080
 // @BasePath  /
 
 // @securityDefinitions.basic  BasicAuth

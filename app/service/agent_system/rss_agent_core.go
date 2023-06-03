@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"time"
 
@@ -57,13 +58,19 @@ type rssAgentCore struct {
 
 func (rac *rssAgentCore) loadRssFile(a *Agent) {
 	var err error
+
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	
 	a.Mutex.Lock()
 	if rac.file == nil {
-		err = os.Mkdir("./rss", 0777)
+		err = os.Mkdir(filepath.Dir(ex)+"/rss", 0777)
 		if err != nil && !os.IsExist(err) {
 			panic(err)
 		}
-		rac.file, err = os.OpenFile(fmt.Sprintf("./rss/%v.xml", a.ID), os.O_RDWR|os.O_CREATE, 0777)
+		rac.file, err = os.OpenFile(fmt.Sprintf("%v/rss/%v.xml", filepath.Dir(ex), a.ID), os.O_RDWR|os.O_CREATE, 0777)
 		if err != nil {
 			panic(err)
 		}

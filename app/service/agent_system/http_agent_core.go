@@ -249,7 +249,7 @@ func selectHtml(doc []byte, selectors []Selector, result *[]map[string]string) e
 				nodesMaxMum = len(nodesList[i])
 			}
 		default:
-			return errors.New("unsupported json selector: " + v.SelectorType)
+			return errors.New("unsupported selector: " + v.SelectorType)
 		}
 		if err != nil {
 			return err
@@ -303,7 +303,7 @@ func selectXml(doc []byte, selectors []Selector, result *[]map[string]string) er
 				nodesMaxMum = len(nodesList[i])
 			}
 		default:
-			return errors.New("unsupported json selector: " + v.SelectorType)
+			return errors.New("unsupported selector: " + v.SelectorType)
 		}
 		if err != nil {
 			return err
@@ -357,7 +357,7 @@ func selectJson(doc []byte, selectors []Selector, result *[]map[string]string) e
 				nodesMaxMum = len(nodesList[i])
 			}
 		default:
-			return errors.New("unsupported json selector: " + v.SelectorType)
+			return errors.New("unsupported selector: " + v.SelectorType)
 		}
 		if err != nil {
 			return err

@@ -5,13 +5,17 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strings"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/antchfx/jsonquery"
+	"github.com/antchfx/xmlquery"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/mohae/deepcopy"
 	"github.com/osteele/liquid"
 	"github.com/valyala/fasthttp"
+	"golang.org/x/net/html"
 )
 
 type Selector struct {
@@ -152,6 +156,8 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 		switch docType {
 		case "html":
 			err = selectHtml(resp.Body(), selectors, &resultMap)
+		case "xml":
+			err = selectXml(resp.Body(), selectors, &resultMap)
 		case "json":
 			err = selectJson(resp.Body(), selectors, &resultMap)
 		case "text":
@@ -223,7 +229,110 @@ func (hac *httpAgentCore) ValidCheck() error {
 var engine = liquid.NewEngine()
 
 func selectHtml(doc []byte, selectors []Selector, result *[]map[string]string) error {
-	//TODO
+	docNode, err := htmlquery.Parse(bytes.NewReader(doc))
+	if err != nil {
+		return err
+	}
+	selectorNum := len(selectors)
+	nodesList := make([][]*html.Node, 0, selectorNum)
+	nodesMaxMum := 0
+	for i, v := range selectors {
+		switch v.SelectorType {
+		case "xpath":
+			var nodes []*html.Node
+			nodes, err = htmlquery.QueryAll(docNode, v.SelectorContent)
+			if nodes == nil {
+				nodes = []*html.Node{}
+			}
+			nodesList = append(nodesList, nodes)
+			if len(nodesList[i]) > nodesMaxMum {
+				nodesMaxMum = len(nodesList[i])
+			}
+		default:
+			return errors.New("unsupported json selector: " + v.SelectorType)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	for eventInd := 0; eventInd < nodesMaxMum; eventInd++ {
+		newMap := make(map[string]string)
+		for selectorInd, v := range selectors {
+			if eventInd <= len(nodesList[selectorInd]) - 1 {
+				attr := false
+				Secs := strings.Split(v.SelectorContent, "/")
+				LastSec := Secs[len(Secs)-1]
+				if LastSec[0] == '@' {
+					attr = true
+				}
+				if attr {
+					newMap[v.VarName] = htmlquery.SelectAttr(nodesList[selectorInd][eventInd], LastSec[1:])
+				} else {
+					newMap[v.VarName] = htmlquery.InnerText(nodesList[selectorInd][eventInd])
+				}
+			} else {
+				newMap[v.VarName] = ""
+			}
+			if err != nil {
+				return err
+			}
+		}
+		*result = append(*result, newMap)
+	}
+	return nil
+}
+
+func selectXml(doc []byte, selectors []Selector, result *[]map[string]string) error {
+	docNode, err := xmlquery.Parse(bytes.NewReader(doc))
+	if err != nil {
+		return err
+	}
+	selectorNum := len(selectors)
+	nodesList := make([][]*xmlquery.Node, 0, selectorNum)
+	nodesMaxMum := 0
+	for i, v := range selectors {
+		switch v.SelectorType {
+		case "xpath":
+			var nodes []*xmlquery.Node
+			nodes, err = xmlquery.QueryAll(docNode, v.SelectorContent)
+			if nodes == nil {
+				nodes = []*xmlquery.Node{}
+			}
+			nodesList = append(nodesList, nodes)
+			if len(nodesList[i]) > nodesMaxMum {
+				nodesMaxMum = len(nodesList[i])
+			}
+		default:
+			return errors.New("unsupported json selector: " + v.SelectorType)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	for eventInd := 0; eventInd < nodesMaxMum; eventInd++ {
+		newMap := make(map[string]string)
+		for selectorInd, v := range selectors {
+			if eventInd <= len(nodesList[selectorInd]) - 1 {
+				attr := false
+				Secs := strings.Split(v.SelectorContent, "/")
+				LastSec := Secs[len(Secs)-1]
+				if LastSec[0] == '@' {
+					attr = true
+				}
+				if attr {
+					newMap[v.VarName] = nodesList[selectorInd][eventInd].SelectAttr(LastSec[1:])
+				} else {
+					newMap[v.VarName] = nodesList[selectorInd][eventInd].InnerText()
+				}
+			} else {
+				newMap[v.VarName] = ""
+			}
+			if err != nil {
+				return err
+			}
+		}
+		*result = append(*result, newMap)
+	}
 	return nil
 }
 
@@ -257,7 +366,7 @@ func selectJson(doc []byte, selectors []Selector, result *[]map[string]string) e
 	for eventInd := 0; eventInd < nodesMaxMum; eventInd++ {
 		newMap := make(map[string]string)
 		for selectorInd, v := range selectors {
-			if eventInd <= len(nodesList[selectorInd]) {
+			if eventInd <= len(nodesList[selectorInd]) - 1 {
 				newMap[v.VarName], err = jsonNodeToStr(nodesList[selectorInd][eventInd])
 			} else {
 				newMap[v.VarName] = ""

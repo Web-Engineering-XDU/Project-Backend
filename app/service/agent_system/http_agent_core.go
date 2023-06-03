@@ -215,7 +215,7 @@ func (hac *httpAgentCore) IgnoreDuplicateEvent() bool {
 }
 
 func (hac *httpAgentCore) ValidCheck() error {
-	if hac.DocType != "text" && hac.DocType != "json" && hac.DocType != "html" {
+	if hac.DocType != "text" && hac.DocType != "json" && hac.DocType != "html" && hac.DocType != "xml"{
 		return errors.New("unsupported doc type: " + hac.DocType)
 	}
 	for _, v := range hac.Selectors {

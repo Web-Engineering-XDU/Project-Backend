@@ -208,6 +208,11 @@ func UpdateAgent(c *gin.Context) {
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", nil))
 }
 
+type getEventListParams struct {
+	getListParams
+	EventId int `form:"eventId"`
+}
+
 // @Summary      List Events
 // @Description  get events
 // @Tags         events
@@ -219,25 +224,19 @@ func UpdateAgent(c *gin.Context) {
 // @Success      200  {object}   swaggo.GetEventListResponse
 // @Router       /event [get]
 func GetEventList(c *gin.Context) {
-	params := &getListParams{}
+	params := &getEventListParams{}
 	c.ShouldBind(params)
 
 	var results []models.EventAndSrcAgentName
 	var totalCount int64
 
-	if params.ID == 0 {
-		results, totalCount = models.SelectEventList(
-			params.Number,
-			(params.Page-1)*params.Number,
-		)
-	} else {
-		results, totalCount = models.SelectEventListByAgentID(
-			params.ID,
-			params.Number,
-			(params.Page-1)*params.Number,
-		)
-		results = append([]models.EventAndSrcAgentName{}, results...)
-	}
+	results, totalCount = models.SelectEventList(
+		params.ID,
+		params.EventId,
+		params.Number,
+		(params.Page-1)*params.Number,
+	)
+	results = append([]models.EventAndSrcAgentName{}, results...)
 
 	c.JSON(http.StatusOK, makeRespBody(200, "ok", makeCountContent(len(results), int(totalCount), results)))
 }

@@ -69,7 +69,7 @@ func (eventHdl *eventHandler) run() {
 					if !event.ToBeDelivered {
 						continue
 					}
-					fmt.Println(event)
+					fmt.Printf("Agent %v generate event: %v\n",event.SrcAgent.ID, event.Msg)
 					event.SrcAgent.Mutex.RLock()
 					for _, v := range event.SrcAgent.DstAgentId {
 						go eventHdl.agents.NextAgentDo(v, event)

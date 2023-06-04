@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/araddon/dateparse"
 	"github.com/gorilla/feeds"
 	"github.com/mmcdole/gofeed"
 )
@@ -18,6 +19,7 @@ type rssItemTemplate struct {
 	Link        string
 	Description string
 	Author      string
+	Created     string
 }
 
 func (item rssItemTemplate) render(bindings map[string]string) *rssItemTemplate {
@@ -42,6 +44,10 @@ func (item rssItemTemplate) render(bindings map[string]string) *rssItemTemplate 
 	if err != nil {
 		panic(err)
 	}
+	item.Author, err = engine.ParseAndRenderString(item.Created, res)
+	if err != nil {
+		panic(err)
+	}
 	return &item
 }
 
@@ -59,12 +65,11 @@ type rssAgentCore struct {
 func (rac *rssAgentCore) loadRssFile(a *Agent) {
 	var err error
 
+	a.Mutex.Lock()
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
-	
-	a.Mutex.Lock()
 	if rac.file == nil {
 		err = os.Mkdir(filepath.Dir(ex)+"/rss", 0777)
 		if err != nil && !os.IsExist(err) {
@@ -136,6 +141,10 @@ func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, ca
 	var err error
 	rac.loadRssFile(agent)
 	newItem := rac.Template.render(event.Msg)
+	itemTime, err := dateparse.ParseLocal(newItem.Created)
+	if err != nil {
+		itemTime = time.Now()
+	}
 
 	agent.Mutex.Lock()
 	rac.feed.Items = append(rac.feed.Items, &feeds.Item{
@@ -143,7 +152,7 @@ func (rac *rssAgentCore) Run(ctx context.Context, agent *Agent, event *Event, ca
 		Link:        &feeds.Link{Href: newItem.Link},
 		Description: newItem.Description,
 		Author:      &feeds.Author{Name: newItem.Author},
-		Created:     time.Now(),
+		Created:     itemTime,
 	})
 	sort.Slice(rac.feed.Items, func(i, j int) bool {
 		return rac.feed.Items[i].Created.After(rac.feed.Items[j].Created)

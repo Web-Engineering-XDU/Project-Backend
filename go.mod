@@ -3,7 +3,9 @@ module github.com/Web-Engineering-XDU/Project-Backend
 go 1.20
 
 require (
+	github.com/antchfx/htmlquery v1.3.0
 	github.com/antchfx/jsonquery v1.3.2
+	github.com/antchfx/xmlquery v1.3.15
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/gorilla/feeds v1.1.1
@@ -25,8 +27,6 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/antchfx/htmlquery v1.3.0 // indirect
-	github.com/antchfx/xmlquery v1.3.15 // indirect
 	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
@@ -57,6 +57,7 @@ require (
 )
 
 require (
+	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -78,7 +79,7 @@ require (
 	github.com/unrolled/secure v1.13.0
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
-	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/net v0.8.0
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

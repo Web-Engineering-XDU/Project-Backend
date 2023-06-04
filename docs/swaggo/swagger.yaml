@@ -545,6 +545,10 @@ paths:
         in: query
         name: id
         type: integer
+      - description: event id. Don't include in request if you don't specify it
+        in: query
+        name: eventId
+        type: integer
       - description: number of events in a page
         in: query
         name: number

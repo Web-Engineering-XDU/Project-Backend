@@ -449,6 +449,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "description": "event id. Don't include in request if you don't specify it",
+                        "name": "eventId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "description": "number of events in a page",
                         "name": "number",
                         "in": "query",

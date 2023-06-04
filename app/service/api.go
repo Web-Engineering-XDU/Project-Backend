@@ -219,6 +219,7 @@ type getEventListParams struct {
 // @Accept       json
 // @Produce      json
 // @Param        id			query	int    false    "src agent id. Don't include in request if you don't specify it"
+// @Param        eventId	query	int    false    "event id. Don't include in request if you don't specify it"
 // @Param        number		query	int    true		"number of events in a page"
 // @Param        page   	query	int    true		"page sequence number"
 // @Success      200  {object}   swaggo.GetEventListResponse

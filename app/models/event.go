@@ -43,7 +43,7 @@ func SelectEventList(id, event_id, limit, offset int) (ret []EventAndSrcAgentNam
 		} else if id == 0 {
 			tx = tx.Where("events.id = ?", event_id)
 		} else {
-			tx = tx.Where("src_agent_id = ? AND id = ?", id, event_id)
+			tx = tx.Where("src_agent_id = ? AND events.id = ?", id, event_id)
 		}
 	}
 	tx = tx.Order("create_at desc").Count(&totalCount)

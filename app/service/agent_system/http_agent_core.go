@@ -118,7 +118,6 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 
 	agent.Mutex.RLock()
 	httpReqTemp := deepcopy.Copy(hac.httpRequstsTemplate).(httpRequstsTemplate)
-	temp := deepcopy.Copy(hac.Template).(map[string]string)
 	docType := hac.DocType
 	selectors := deepcopy.Copy(hac.Selectors).([]Selector)
 	mergeEvent := hac.MergeEvent
@@ -173,6 +172,7 @@ func (hac *httpAgentCore) Run(ctx context.Context, agent *Agent, event *Event, c
 		}
 		results := make([]*Event, len(resultMap))
 		for i, v := range resultMap {
+			temp := deepcopy.Copy(hac.Template).(map[string]string)
 			bindings := deepcopy.Copy(v).(map[string]string)
 			mergeMap(bindings, event.Msg)
 			err = renderTemplate(temp, bindings)

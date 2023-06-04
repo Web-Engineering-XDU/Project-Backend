@@ -4,3 +4,5 @@ cmd/huggo.exe
 build
 commit_and_push.bat
 cmd/rss
+*.crt
+*.key

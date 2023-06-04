@@ -100,11 +100,16 @@ func (rac *rssAgentCore) loadRssFile(a *Agent) {
 			rac.feed.Created = (*feed.PublishedParsed).Local()
 			rac.feed.Items = make([]*feeds.Item, 0, len(feed.Items))
 			for _, v := range feed.Items {
+				var author feeds.Author
+				if len(v.Authors) != 0 {
+					author.Name = v.Authors[0].Name
+					author.Email = v.Authors[0].Email
+				}
 				rac.feed.Items = append(rac.feed.Items, &feeds.Item{
 					Title:       v.Title,
 					Link:        &feeds.Link{Href: v.Link},
 					Description: v.Description,
-					Author:      &feeds.Author{Name: v.Author.Name},
+					Author:      &author,
 					Created:     (*v.PublishedParsed).Local(),
 				})
 			}

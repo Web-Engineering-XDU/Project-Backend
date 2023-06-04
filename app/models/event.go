@@ -41,7 +41,7 @@ func SelectEventList(id, event_id, limit, offset int) (ret []EventAndSrcAgentNam
 		if event_id == 0 {
 			tx = tx.Where("src_agent_id = ?", id)
 		} else if id == 0 {
-			tx = tx.Where("id = ?", event_id)
+			tx = tx.Where("events.id = ?", event_id)
 		} else {
 			tx = tx.Where("src_agent_id = ? AND id = ?", id, event_id)
 		}

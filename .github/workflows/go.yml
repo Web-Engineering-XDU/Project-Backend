@@ -45,6 +45,5 @@ jobs:
         password: ${{ secrets.AVERY_PWD }}
         script: |
           cd /home/ubuntu/work/bin
-          fuser -k 8080/tcp
-          screen -dmS huggo huggo|tee -a ~/work/bin/huggo.log
+          fuser -k 8080/tcp && screen -dmS huggo huggo|tee -a ~/work/bin/huggo.log
           exit

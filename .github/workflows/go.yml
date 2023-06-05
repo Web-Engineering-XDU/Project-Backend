@@ -45,5 +45,6 @@ jobs:
         password: ${{ secrets.AVERY_PWD }}
         script: |
           cd /home/ubuntu/work/bin
-          screen -X -S huggo quit || screen -dmS huggo huggo|tee -a ~/work/bin/huggo.log
+          screen -X -S huggo quit || true
+          screen -dmS huggo huggo|tee -a ~/work/bin/huggo.log
           exit

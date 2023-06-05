@@ -67,8 +67,24 @@ func (ac *AgentCollection) DeleteAgent(id int) (bool, error) {
 	if err != nil {
 		return ok, err
 	}
-
 	agent.Stop()
+
+	dst := ac.agentMap[id].DstAgentId
+	src := ac.agentMap[id].SrcAgentId
+
+	go func() {
+		for _, v := range dst {
+			ac.agentMap[v].Mutex.Lock()
+			ac.agentMap[v].SrcAgentId = removeFromSlice(ac.agentMap[v].SrcAgentId, id)
+			ac.agentMap[v].Mutex.Unlock()
+		}
+		for _, v := range src {
+			ac.agentMap[v].Mutex.Lock()
+			ac.agentMap[v].DstAgentId = removeFromSlice(ac.agentMap[v].DstAgentId, id)
+			ac.agentMap[v].Mutex.Unlock()
+		}
+	}()
+
 	delete(ac.agentMap, id)
 	return true, nil
 }

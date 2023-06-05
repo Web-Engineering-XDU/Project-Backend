@@ -152,12 +152,12 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 
 	for _, v := range deleted {
 		ac.agentMap[v].Mutex.Lock()
-		ac.agentMap[v].DstAgentId = removeFromSlice(ac.agentMap[v].DstAgentId, v)
+		ac.agentMap[v].DstAgentId = removeFromSlice(ac.agentMap[v].DstAgentId, agentId)
 		ac.agentMap[v].Mutex.Unlock()
 	}
 	for _, v := range added {
 		ac.agentMap[v].Mutex.Lock()
-		ac.agentMap[v].DstAgentId = append(ac.agentMap[v].DstAgentId, v)
+		ac.agentMap[v].DstAgentId = append(ac.agentMap[v].DstAgentId, agentId)
 		ac.agentMap[v].Mutex.Unlock()
 	}
 	return nil

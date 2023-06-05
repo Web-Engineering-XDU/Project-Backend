@@ -103,6 +103,18 @@ func (rac *rssAgentCore) loadRssFile(a *Agent) {
 		if err != nil {
 			rac.feed.Created = time.Now()
 			rac.feed.Items = []*feeds.Item{}
+			rss, err := rac.feed.ToRss()
+			if err != nil {
+				panic(err)
+			}
+			err = rac.file.Truncate(int64(len(rss)))
+			if err != nil {
+				panic(err)
+			}
+			_, err = rac.file.WriteAt([]byte(rss), 0)
+			if err != nil {
+				panic(err)
+			}
 		} else {
 			rac.feed.Created = (*feed.PublishedParsed).Local()
 			rac.feed.Items = make([]*feeds.Item, 0, len(feed.Items))

@@ -58,8 +58,8 @@ type rssAgentCore struct {
 	Author      string
 	Template    rssItemTemplate
 
-	file *os.File
-	feed *feeds.Feed
+	file *os.File    `json:",omitempty"`
+	feed *feeds.Feed `json:",omitempty"`
 }
 
 func (rac *rssAgentCore) loadRssFile(a *Agent) {
@@ -75,7 +75,9 @@ func (rac *rssAgentCore) loadRssFile(a *Agent) {
 		if err != nil && !os.IsExist(err) {
 			panic(err)
 		}
-		rac.file, err = os.OpenFile(fmt.Sprintf("%v/rss/%v.xml", filepath.Dir(ex), a.ID), os.O_RDWR|os.O_CREATE, 0777)
+		rssFilePath := fmt.Sprintf("%v/rss/%v.xml", filepath.Dir(ex), a.ID)
+		rac.file, err = os.OpenFile(rssFilePath, os.O_RDWR|os.O_CREATE, 0777)
+		fmt.Printf("rss agent %v create rss file: %v\n", a.ID, rssFilePath)
 		if err != nil {
 			panic(err)
 		}

@@ -35,6 +35,7 @@ func (ac *AgentCollection) AddAgent(a *models.Agent) error {
 		Ctx:   ac.ctx,
 		Mutex: sync.RWMutex{},
 	}
+
 	err := agent.LoadCore()
 	if err != nil {
 		return err
@@ -47,6 +48,9 @@ func (ac *AgentCollection) AddAgent(a *models.Agent) error {
 
 	agent.ID = a.ID
 	ac.agentMap[agent.ID] = agent
+	if agent.TypeId == RssAgentId {
+		agent.AgentCore.(*rssAgentCore).loadRssFile(agent)
+	}
 	if agent.Enable && agent.TypeId == ScheduleAgentId {
 		go agent.Run(agent.Ctx, agent, nil, ac.eventHdl.PushEvent)
 	}

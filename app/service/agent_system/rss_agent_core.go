@@ -135,7 +135,9 @@ func (a *Agent) loadRssAgentCore() error {
 		return err
 	}
 	a.AgentCore = core
-	core.loadRssFile(a)
+	if a.ID != 0 {
+		core.loadRssFile(a)
+	}
 	return nil
 }
 

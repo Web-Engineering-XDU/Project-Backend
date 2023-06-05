@@ -157,7 +157,7 @@ func (ac *AgentCollection) SetAgentRelation(agentId int, srcs, dsts []int) error
 	}
 	for _, v := range added {
 		ac.agentMap[v].Mutex.Lock()
-		ac.agentMap[v].DstAgentId = append(agent.DstAgentId, v)
+		ac.agentMap[v].DstAgentId = append(ac.agentMap[v].DstAgentId, v)
 		ac.agentMap[v].Mutex.Unlock()
 	}
 	return nil
